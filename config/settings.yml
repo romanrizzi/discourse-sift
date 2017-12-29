@@ -1,0 +1,74 @@
+plugins:
+  sift_enabled:
+    default: false
+    shadowed_by_global: true
+  sift_api_key:
+    default: 'OnlvdXJfYXBpX2tleQ=='
+    shadowed_by_global: true
+  sift_api_url:
+    default: 'http://admin.pottymouthfilter.com:8080'
+    shadowed_by_global: true
+  sift_end_point:
+    default: 'v1/chat'
+    shadowed_by_global: true
+  sift_notify_user:
+    default: true
+    shadowed_by_global: true
+  sift_general_deny_level:
+    default: '8'
+    shadowed_by_global: true
+  sift_bullying_deny_level:
+    default: '8'
+    shadowed_by_global: true
+  sift_fighting_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_pii_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_sexting_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_vulgar_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_drugs_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_items_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_alarm_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_fraud_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_hate_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_religious_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_website_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_grooming_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_threats_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_realname_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_radicalization_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_subversive_deny_level:
+      default: '8'
+      shadowed_by_global: true
+  sift_sentiment_deny_level:
+      default: '8'
+      shadowed_by_global: true
+

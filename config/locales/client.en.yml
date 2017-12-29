@@ -1,0 +1,26 @@
+en:
+  js:
+    admin:
+      logs:
+        staff_actions:
+          actions:
+            confirmed_passes_policy: "confirmed passes policy guide"
+            confirmed_failed_policy: "confirmed failed policy guide"
+            dismissed: 'dismissed'
+
+    sift:
+      title: "Community Sift"
+      confirm_fails_policy: "Confirm Fails Policy"
+      confirm_passes_policy: "Confirm Passes Policy"
+      refresh: "Refresh Posts"
+      posts_to_review: "Posts to Review"
+      dismiss: "Dismiss"
+
+      stats:
+        classified: "Total Moderated"
+        requires_moderation: "Requires Moderation"
+        confirmed_failed: "Moderator Confirmed Fails Policy Guide"
+        confirmed_passed: "Moderator Confirmed Passes Policy Guide"
+
+      not_enabled: "Community Sift is not enabled right now."
+      change_settings: "Change Settings"

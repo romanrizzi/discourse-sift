@@ -1,0 +1,50 @@
+en:
+  site_settings:
+    sift_enabled: 'Use Community Sift to classify posts?'
+    sift_api_key: 'Community Sift API key to used to authorize plugin integration'
+    sift_api_url: 'Url to Community Sift API'
+    sift_end_point: 'Path to classification end point'
+    sift_notify_user: 'Enable User Notification When Post Is Filtered'
+    sift_general_deny_level: 'General posts over this level will be auto denied'
+    sift_bullying_deny_level: 'Bullying and Name Calling posts over this level will be auto denied'
+    sift_fighting_deny_level: 'Fighting posts over this level will be auto denied'
+    sift_pii_deny_level: 'PII posts over this level will be auto denied'
+    sift_sexting_deny_level: 'Dating and Sexting posts over this level will be auto denied'
+    sift_vulgar_deny_level: 'Vulgar posts over this level will be auto denied'
+    sift_drugs_deny_level: 'Drugs and Alcohol posts over this level will be auto denied'
+    sift_items_deny_level: 'In Game Places, items and events over this level will be auto denied'
+    sift_alarm_deny_level: 'Alarm (Suicide, Self Harm) posts over this level will be auto denied'
+    sift_fraud_deny_level: 'Fraud posts over this level will be auto denied'
+    sift_hate_deny_level: 'Rasist/Hate Speech posts over this level will be auto denied'
+    sift_religious_deny_level: 'Religious posts over this level will be auto denied'
+    sift_website_deny_level: 'Website posts over this level will be auto denied'
+    sift_grooming_deny_level: 'Grooming/Creep posts over this level will be auto denied'
+    sift_threats_deny_level: 'Public Threats posts over this level will be auto denied'
+    sift_realname_deny_level: 'Real Name posts over this level will be auto denied'
+    sift_radicalization_deny_level: 'Radicalization posts over this level will be auto denied'
+    sift_subversive_deny_level: 'Subversive posts over this level will be auto denied'
+    sift_sentiment_deny_level: 'Sentiment posts over this level will be auto denied'
+
+  sift:
+    delete_reason: "confirmed by %{performed_by} to fail policy guide"
+
+  system_messages:
+    sift_auto_filtered:
+      subject_template: "Your post has been permanently removed"
+      text_body_template: |
+        Hello,
+
+        Our automated forum filter, has permanently hidden your post as it exceeded our policy guide.
+
+        We apologize for the inconvenience.
+
+    sift_human_moderation:
+      subject_template: "Your post has been temporarily hidden"
+      text_body_template: |
+        Hello,
+
+        Our automated forum filter, has temporarily hidden your post in *%{topic_title}* for review.
+
+        A [staff member](%{base_url}/about) will review your post soon, and it should appear shortly.
+
+        We apologize for the inconvenience.

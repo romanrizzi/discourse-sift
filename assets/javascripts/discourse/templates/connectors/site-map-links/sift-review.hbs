@@ -1,0 +1,10 @@
+{{#if currentUser.staff}}
+  <li>
+    {{#link-to 'adminPlugins.sift'}}
+      {{i18n "sift.title"}}
+      {{#if currentUser.sift_review_count}}
+        <span class='badge-notification flagged-posts'>{{currentUser.sift_review_count}}</span>
+      {{/if}}
+    {{/link-to}}
+  </li>
+{{/if}}
