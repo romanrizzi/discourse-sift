@@ -20,6 +20,9 @@ module DiscourseSift
 
   end
 
+  # TODO: Does this create a new client with every post?  Also means that using a persistent connection for
+  # API requests is not possible.  Should probably use some caching?  Would need to make sure any caching can
+  # handle setting changes.
   def self.with_client
     Sift::Client.with_client(
         base_url: Discourse.base_url,
@@ -56,6 +59,13 @@ module DiscourseSift
         DiscourseEvent.trigger(:sift_auto_moderated)
 
       elsif !result.response && !result.over_any_max_risk  #Fails policy guide and escalated to human moderation
+        #
+        # TODO: If a user is on the post's page and is following the topic then they see the post appear.  It stays
+        #       in view until they refresh the topic even if it was sent to moderated and/or deleted.  Is there a
+        #       hook that can prevent that (i.e. filter the post before it can show on a page? earlier hook?) or
+        #       is there another signal that can be sent to remove it from view, as PostDestroyer does not seem
+        #       to do that.
+        #
 
         # Post Removed Due To Content
         PostDestroyer.new(Discourse.system_user, post).destroy

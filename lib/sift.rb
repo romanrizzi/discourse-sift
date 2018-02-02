@@ -94,6 +94,8 @@ class Sift
         private
 
         def validate_classification(response)
+            # TODO: Handle errors better?  Currently any issues with connection including incorrect API key leads to
+            #       every post needing moderation
             hash = JSON.parse(response.body)
 
             result_risk = Sift::Risk.new(
@@ -135,13 +137,16 @@ class Sift
                 'text' =>  "#{to_classify.raw.strip[0..30999]}"
             }.to_json
 
+            # TODO: look at using persistent connections.
+            # TODO: Need to handle errors (e.g. incorrect API key)
             response = begin
                  result = Excon.post(request_url,
                     body: request_body,
                     headers: {
                         'Content-Type' => 'application/json',
-                        'Authorization' => "Basic #{@api_key}"
-                    }
+                    },
+                    :user => 'discourse-plugin',
+                    :password => @api_key
                 )
                 result
             rescue

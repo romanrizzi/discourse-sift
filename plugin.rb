@@ -15,6 +15,10 @@ register_asset "stylesheets/mod_queue_styles.scss"
 
 after_initialize do
 
+  #
+  # TODO:  Need to hook on post edits as well.  Any other hooks we need?
+  #
+
   # Store Sift Data
   on(:post_created) do |post, params|
     if DiscourseSift.should_classify_post?(post)
