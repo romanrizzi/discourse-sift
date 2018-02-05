@@ -18,9 +18,29 @@ after_initialize do
   #
   # TODO:  Need to hook on post edits as well.  Any other hooks we need?
   #
+  # TODO: Investigate "before_create_post", "validate_post", PostValidator, PostAnalyzer
 
   # Store Sift Data
   on(:post_created) do |post, params|
+    if DiscourseSift.should_classify_post?(post)
+      # Classify Post
+      DiscourseSift.classify_post(post)
+    end
+  end
+
+  on(:post_edited) do |post, params|
+	#
+	# TODO: If a post is edited, it is re-classified in it's entirety.  This could lead
+	#       to:
+	#         - Post created that fails classification
+	#         - Moderator marks post as okay
+	#         - user edits post
+	#         - Post is reclassified, and the content that failed before will fail again
+	#           even if new content would not fail
+	#         - Post is marked for moderation again
+	#  Not sure if this is a problem, but maybe there is a path forward that can classify
+	#  a delta or something?
+	#
     if DiscourseSift.should_classify_post?(post)
       # Classify Post
       DiscourseSift.classify_post(post)
