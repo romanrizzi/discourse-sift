@@ -3,10 +3,10 @@ plugins:
     default: false
     shadowed_by_global: true
   sift_api_key:
-    default: 'OnlvdXJfYXBpX2tleQ=='
+    default: 'replace_with_your_api_key'
     shadowed_by_global: true
   sift_api_url:
-    default: 'http://admin.pottymouthfilter.com:8080'
+    default: 'https://replace.with.your.api.uri'
     shadowed_by_global: true
   sift_end_point:
     default: 'v1/chat'
@@ -16,6 +16,8 @@ plugins:
     shadowed_by_global: true
   sift_general_deny_level:
     default: '8'
+    min: '0'
+    max: 8
     shadowed_by_global: true
   sift_bullying_deny_level:
     default: '8'
