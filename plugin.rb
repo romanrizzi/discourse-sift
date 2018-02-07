@@ -19,6 +19,11 @@ after_initialize do
   # TODO:  Need to hook on post edits as well.  Any other hooks we need?
   #
   # TODO: Investigate "before_create_post", "validate_post", PostValidator, PostAnalyzer
+  #
+  # TODO: [minor] Admin moderation queue does not include topic title, which could be a small issue if the title
+  #       of a new topic fails classification but the content is fine.  Minor issue, as moderator has access to the
+  #       full topic from a link.
+  # TODO: Title for new toics not classified
 
   # Store Sift Data
   on(:post_created) do |post, params|
