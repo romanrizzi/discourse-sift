@@ -76,19 +76,23 @@ class Sift
         end
 
         def submit_for_classification(to_classify)
-            response = post(@end_point, to_classify)
-            if response.nil? || response.status != 200
-                #if there is an error reaching Community Sift, escalate to human moderation
+          Rails.logger.error('sift_debug: Before inspect...')
+          Rails.logger.error("sift_debug: #{to_classify.inspect}")
+          Rails.logger.error("sift_debug: #{to_classify.topic.inspect}")
+          Rails.logger.error("sift_debug: ...After inspect")
+          response = post(@end_point, to_classify)
+          if response.nil? || response.status != 200
+            #if there is an error reaching Community Sift, escalate to human moderation
 
-                data = {
-                    'risk' => 0,
-                    'response' => false,
-                    'topics' => {}
-                }.to_json
-                response = Excon::Response.new(:body => data)
-            end
+            data = {
+              'risk' => 0,
+              'response' => false,
+              'topics' => {}
+            }.to_json
+            response = Excon::Response.new(:body => data)
+          end
 
-            validate_classification(response)
+          validate_classification(response)
         end
 
         private
@@ -126,33 +130,43 @@ class Sift
         end
 
         def post(target, to_classify)
-            # Assume topic_id and player_id are no more than 1000 chars
-            # Send a maximum of 31000 chars which is the default for
-            # maximum post length site settings.
-            #
-            request_url = "#{@api_url}/#{target}"
-            request_body= {
-                'room' => "#{to_classify.topic.id}",
-                'player' => "#{to_classify.user.id}",
-                'text' =>  "#{to_classify.raw.strip[0..30999]}"
-            }.to_json
+          # Assume topic_id and player_id are no more than 1000 chars
+          # Send a maximum of 31000 chars which is the default for
+          # maximum post length site settings.
+          #
+          request_text = to_classify.raw.strip[0..30999]
+          # If this is the first post, also classify the Topic title
+          # TODO: Is this the best way to check for a new/editied topic?
+          #   Testing shows that the post is always post_number 1 for new
+          #   topics, and edits just to Title of topic also pass the post here
+          # TODO: Should title be classified separately rather than pre-pending
+          #   to the post text?
+          if to_classify.post_number == 1
+            request_text = to_classify.topic.title + " " + request_text
+          end
+          request_url = "#{@api_url}/#{target}"
+          request_body= {
+            'room' => "#{to_classify.topic.id}",
+            'player' => "#{to_classify.user.id}",
+            'text' =>  "#{request_text}"
+          }.to_json
 
-            # TODO: look at using persistent connections.
-            # TODO: Need to handle errors (e.g. incorrect API key)
-            response = begin
-                 result = Excon.post(request_url,
-                    body: request_body,
-                    headers: {
-                        'Content-Type' => 'application/json',
-                    },
-                    :user => 'discourse-plugin',
-                    :password => @api_key
-                )
-                result
-            rescue
-                nil
-            end
-            response
+          # TODO: look at using persistent connections.
+          # TODO: Need to handle errors (e.g. incorrect API key)
+          response = begin
+                       result = Excon.post(request_url,
+                                           body: request_body,
+                                           headers: {
+                                             'Content-Type' => 'application/json',
+                                           },
+                                           :user => 'discourse-plugin',
+                                           :password => @api_key
+                                          )
+                       result
+                     rescue
+                       nil
+                     end
+          response
         end
     end
 end
