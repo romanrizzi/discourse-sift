@@ -2,7 +2,29 @@ require 'excon'
 require 'json'
 
 class Sift
-    class Error < StandardError; end
+  TopicMap = {
+    0 => 'general',
+    1 => 'bullying',
+    2 => 'fighting',
+    3 => 'pii',
+    4 => 'sexting',
+    5 => 'vulgar',
+    6 => 'drugs',
+    7 => 'items',
+    8 => 'alarm',
+    9 => 'fraud',
+    10 => 'hate',
+    11 => 'religious',
+    13 => 'website',
+    14 => 'grooming',
+    15 => 'threats',
+    16 => 'realname',
+    17 => 'radicalization',
+    18 => 'subversive',
+    19 => 'sentiment'
+  }
+  
+  class Error < StandardError; end
 
     class Risk
         attr_accessor :risk, :response
