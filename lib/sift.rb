@@ -31,7 +31,7 @@ class Sift
 
         def initialize(risk:, response:, general:, bullying:, fighting:, pii:, sexting:, vulgar:, drugs:, items:, alarm:, fraud:, hate:, religious:, website:, grooming:, threats:, realname:, radicalization:, subversive:, sentiment: )
             
-          Rails.logger.error("sift_debug: Risk.init enter...")            
+          #Rails.logger.error("sift_debug: Risk.init enter...")            
           
            @risk = risk,
            @response = response
@@ -101,25 +101,24 @@ class Sift
         end
 
         def submit_for_classification(to_classify)
-            response = post(@end_point, to_classify)
-            
-            Rails.logger.error("sift_debug: #{response.inspect}")
-            
-            if response.nil? || response.status != 200
-                #if there is an error reaching Community Sift, escalate to human moderation
+          response = post(@end_point, to_classify)
+          
+          #Rails.logger.error("sift_debug: #{response.inspect}")
+          if response.nil? || response.status != 200
+            #if there is an error reaching Community Sift, escalate to human moderation
 
-                data = {
-                    'risk' => 0,
-                    'response' => false,
-                    'topics' => {}
-                }.to_json
-                response = Excon::Response.new(:body => data)
-            end
+            data = {
+              'risk' => 0,
+              'response' => false,
+              'topics' => {}
+            }.to_json
+            response = Excon::Response.new(:body => data)
+          end
 
             
-            Rails.logger.error("sift_debug: Before validate...")
+          #Rails.logger.error("sift_debug: Before validate...")
             
-            validate_classification(response)
+          validate_classification(response)
             
         end
 
@@ -130,7 +129,7 @@ class Sift
             #       every post needing moderation
             hash = JSON.parse(response.body)
             
-            Rails.logger.error("sift_debug: hash = #{hash.inspect}")
+            #Rails.logger.error("sift_debug: hash = #{hash.inspect}")
 
             hash_topics = hash.fetch('topics', {})
             hash_topics.default = 0
@@ -168,17 +167,21 @@ class Sift
             # Send a maximum of 31000 chars which is the default for
             # maximum post length site settings.
             #
+
+            #Rails.logger.error("sift_debug: #{to_classify.inspect}")
+                        
             request_url = "#{@api_url}/#{target}"
             request_body= {
                 'subcategory' => "#{to_classify.topic.id}",
                 'user_id' => "#{to_classify.user.id}",
+                'content_id' => "#{to_classify.id}",
                 'text' =>  "#{to_classify.raw.strip[0..30999]}"
             }.to_json
 
             # TODO: look at using persistent connections.
             # TODO: Need to handle errors (e.g. incorrect API key)
             
-            Rails.logger.error("sift_debug: #{request_body.inspect}")
+            #Rails.logger.error("sift_debug: #{request_body.inspect}")
             
             response = begin
                  result = Excon.post(request_url,
