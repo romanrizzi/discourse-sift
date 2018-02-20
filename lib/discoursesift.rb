@@ -58,7 +58,7 @@ module DiscourseSift
         # Trigger an event that community sift auto moderated a post. This allows moderators to notify chat rooms
         DiscourseEvent.trigger(:sift_auto_moderated)
 
-      elsif !result.response && !result.over_any_max_risk  #Fails policy guide and escalated to human moderation
+      elsif !result.response  #Fails policy guide and escalated to human moderation
         #
         # TODO: If a user is on the post's page and is following the topic then they see the post appear.  It stays
         #       in view until they refresh the topic even if it was sent to moderated and/or deleted.  Is there a
