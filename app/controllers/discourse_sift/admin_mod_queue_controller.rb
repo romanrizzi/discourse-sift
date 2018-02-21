@@ -69,6 +69,7 @@ module DiscourseSift
           silenced_till = temp_time.to_datetime
         end
       end
+
       # Message can be sent in request, or use i18n default
       # 
       message = params[:message]
@@ -114,8 +115,93 @@ module DiscourseSift
     end
 
     def suspend
+      
+      user = User.find_by(id: params[:user_id])
+            
+      guardian.ensure_can_suspend!(user)
+
+      
+      # If suspend_until is passed in, then use that
+      # Otherwise use duration to calculate it
+      suspend_until = params[:suspend_until]
+      if suspend_until.nil?
+        duration = params[:duration]
+        unless duration.nil?
+          # Calulate suspend_until by adding duration
+          # Duration is passed as seconds
+          temp_time = DateTime.now.to_time
+          temp_time += duration.to_i
+          suspend_until = temp_time.to_datetime
+          params[:suspend_until] = suspend_until
+        end
+      end
+
+      # Message can be sent in request, or use i18n default
+      # 
+      message = params[:message]
+      if message.nil?
+        #Rails.logger.error("sift_debug: no message")
+      
+        message = I18n.t("sift.suspend.message", params)
+        #Rails.logger.error("sift_debug: message = #{message}")
+        params[:message] = message
+      end
+
+      # Reason can be sent in request, or use i18n default
+      reason = params[:reason]
+      if reason.nil?
+        reason = I18n.t("sift.suspend.reason", params)
+        params[:reason] = reason
+      end
+
+      user.suspended_till = params[:suspend_until]
+      user.suspended_at = DateTime.now
+
+      message = params[:message]
+
+      user_history = nil
+
+      User.transaction do
+        user.save!
+        user.revoke_api_key
+
+        user_history = StaffActionLogger.new(current_user).log_user_suspend(
+          user,
+          params[:reason],
+          message: message,
+          post_id: params[:post_id]
+        )
+      end
+      user.logged_out
+
+      if message.present?
+        Jobs.enqueue(
+          :critical_user_email,
+          type: :account_suspended,
+          user_id: user.id,
+          user_history_id: user_history.id
+        )
+      end
+
+      DiscourseEvent.trigger(
+        :user_suspended,
+        user: user,
+        reason: params[:reason],
+        message: message,
+        user_history: user_history,
+        post_id: params[:post_id],
+        suspended_till: params[:suspend_until],
+        suspended_at: DateTime.now
+      )
+
       render_json_dump(
-          result: true
+        suspension: {
+          suspended: true,
+          suspend_reason: params[:reason],
+          full_suspend_reason: user_history.try(:details),
+          suspended_till: user.suspended_till,
+          suspended_at: user.suspended_at
+        }
       )
     end
 

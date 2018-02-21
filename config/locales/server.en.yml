@@ -32,8 +32,8 @@ en:
       message: "You have been silenced"
       reason: "Silenced reason"
 
-    suspended:
-      message: "You have been suspened"
+    suspend:
+      message: "You have been suspended"
       reason: "Suspended reason"
 
   system_messages:
