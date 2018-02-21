@@ -28,6 +28,14 @@ en:
   sift:
     delete_reason: "confirmed by %{performed_by} to fail policy guide"
 
+    silence:
+      message: "You have been silenced"
+      reason: "Silenced reason"
+
+    suspended:
+      message: "You have been suspened"
+      reason: "Suspended reason"
+
   system_messages:
     sift_auto_filtered:
       subject_template: "Your post has been permanently removed"
