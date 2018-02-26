@@ -1,7 +1,5 @@
 require 'date'
 
-DEFAULT_DURATION = 1000*365*24*60*60
-
 module DiscourseSift
   class AdminModQueueController < Admin::AdminController
     requires_plugin 'discourse-sift'
@@ -130,7 +128,7 @@ module DiscourseSift
         duration = params[:duration]
         if duration.nil?
           # Default to 1000 years, like silence does if not passed in
-          duration = DEFAULT_DURATION
+          duration = 1000.years.from_now
         end
         # Calulate suspend_until by adding duration
         # Duration is passed as seconds
