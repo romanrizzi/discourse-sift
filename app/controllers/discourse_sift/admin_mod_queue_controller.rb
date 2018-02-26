@@ -126,14 +126,16 @@ module DiscourseSift
       suspend_until = params[:suspend_until]
       if suspend_until.nil?
         duration = params[:duration]
-        unless duration.nil?
-          # Calulate suspend_until by adding duration
-          # Duration is passed as seconds
-          temp_time = DateTime.now.to_time
-          temp_time += duration.to_i
-          suspend_until = temp_time.to_datetime
-          params[:suspend_until] = suspend_until
+        if duration.nil?
+          # Default to 1000 years, like silence does if not passed in
+          duration = 1000.years.from_now
         end
+        # Calulate suspend_until by adding duration
+        # Duration is passed as seconds
+        temp_time = DateTime.now.to_time
+        temp_time += duration.to_i
+        suspend_until = temp_time.to_datetime
+        params[:suspend_until] = suspend_until
       end
 
       # Message can be sent in request, or use i18n default
