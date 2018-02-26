@@ -124,6 +124,7 @@ class Sift
             request_body= {
                 'subcategory' => "#{to_classify.topic.id}",
                 'user_id' => "#{to_classify.user.id}",
+                'user_display_name' => "#{to_classify.user.username}",
                 'content_id' => "#{to_classify.id}",
                 'text' =>  "#{to_classify.raw.strip[0..30999]}"
             }.to_json
