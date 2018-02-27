@@ -83,29 +83,31 @@ class Sift
             response = Excon::Response.new(:body => data)
           end
 
+          sift_response = JSON.parse(response.body)
+          
+          to_classify.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD] = sift_response
+          to_classify.save_custom_fields(true)
             
           #Rails.logger.error("sift_debug: Before validate...")
             
-          validate_classification(response)
+          validate_classification(sift_response)
             
         end
 
         private
 
-        def validate_classification(response)
+        def validate_classification(sift_response)
           # TODO: Handle errors better?  Currently any issues with connection including incorrect API key leads to
           #       every post needing moderation
-          hash = JSON.parse(response.body)
-          
           #Rails.logger.error("sift_debug: hash = #{hash.inspect}")
 
-          hash_topics = hash.fetch('topics', {})
+          hash_topics = sift_response.fetch('topics', {})
           hash_topics.default = 0
           
           
           result_risk = Sift::Risk.new(
-            risk:           (if hash['risk'].nil?; 0; else; hash['risk'].to_i; end;),
-            response:       !!hash['response'],
+            risk:           (if sift_response['risk'].nil?; 0; else; sift_response['risk'].to_i; end;),
+            response:       !!sift_response['response'],
             topic_hash: hash_topics
           )
 

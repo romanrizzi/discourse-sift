@@ -62,6 +62,12 @@ after_initialize do
     scope.can_view_sift? ? DiscourseSift.requires_moderation.count : nil
   end
 
+  register_post_custom_field_type(DiscourseSift::RESPONSE_CUSTOM_FIELD, :json)
+  
+  add_to_serializer(:post, :sift_response) do
+    post_custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]
+  end
+
 end
 
 add_admin_route 'sift.title', 'sift'
