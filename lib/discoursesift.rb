@@ -41,7 +41,11 @@ module DiscourseSift
     DiscourseSift.with_client do |client|
       result = client.submit_for_classification(post)
 
+      #Rails.logger.error("sift_debug: classify_post Enter: #{result.inspect}")
+      
       if !result.response && result.over_any_max_risk  #Fails policy auto denied
+
+        #Rails.logger.error("sift_debug: Autodeleting Post")
 
         # Post Removed Due To Content
         PostDestroyer.new(Discourse.system_user, post).destroy
@@ -69,25 +73,34 @@ module DiscourseSift
         #       to do that.
         #
 
-        # Post Removed Due To Content
-        PostDestroyer.new(Discourse.system_user, post).destroy
+        #Rails.logger.error("sift_debug: Moderating Post")
 
-        # Mark Post For Requires Moderation
-        DiscourseSift.move_to_state(post, 'requires_moderation')
+        # Should post be hidden/deleted until moderation?
+        if !SiteSetting.sift_post_stay_visible
+          # Post Removed Due To Content
+          PostDestroyer.new(Discourse.system_user, post).destroy
 
-        #Notify User
-        if SiteSetting.sift_notify_user
-          SystemMessage.new(post.user).create(
+          # TODO: Maybe a different message if post sent to mod but still visible?
+          #Notify User
+          if SiteSetting.sift_notify_user
+            SystemMessage.new(post.user).create(
               'sift_human_moderation',
               topic_title: post.topic.title
-          )
+            )
+          end
+
         end
+        
+        # Mark Post For Requires Moderation
+        DiscourseSift.move_to_state(post, 'requires_moderation')
 
         # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
         DiscourseEvent.trigger(:sift_post_failed_policy_guide)
 
       else
 
+        #Rails.logger.error("sift_debug: Post passes.  post: #{post.inspect}")
+        
         # Make post as passed policy guide
         DiscourseSift.move_to_state(post, 'pass_policy_guide')
 
