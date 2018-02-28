@@ -47,7 +47,9 @@ after_initialize do
     #  Not sure if this is a problem, but maybe there is a path forward that can classify
     #  a delta or something?
     #
+    
     #Rails.logger.error("sift_debug: Enter post_edited")
+    #Rails.logger.error("sift_debug: custom_fields: #{post.custom_fields.inspect}")
     if DiscourseSift.should_classify_post?(post)
       # Classify Post
       DiscourseSift.classify_post(post)
@@ -60,6 +62,12 @@ after_initialize do
 
   add_to_serializer(:current_user, :sift_review_count) do
     scope.can_view_sift? ? DiscourseSift.requires_moderation.count : nil
+  end
+
+  register_post_custom_field_type(DiscourseSift::RESPONSE_CUSTOM_FIELD, :json)
+  
+  add_to_serializer(:post, :sift_response) do
+    post_custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]
   end
 
 end

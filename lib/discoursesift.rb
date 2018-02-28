@@ -1,5 +1,7 @@
 module DiscourseSift
 
+  RESPONSE_CUSTOM_FIELD ||= "sift".freeze
+
   def self.should_classify_post?(post)
     return false if post.blank? || (!SiteSetting.sift_enabled?)
 

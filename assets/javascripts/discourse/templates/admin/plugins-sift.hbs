@@ -37,6 +37,15 @@
                 <a href={{post.url}} target="_blank" class="post-link">#{{post.id}}</a>
               </div>
               {{{post.excerpt}}}
+              <div class="sift-response">
+                {{#if post.sift_response }}
+		  {{#each-in post.sift_response.topics as |topicKey topicValue|}}
+		  <span>Topic {{topicKey}}: {{topicValue}}</span>
+		  {{/each-in}}
+		{{~else~}}
+		  <span>No Sift Info available</span>
+		{{/if}}
+              </div>
               <div class="queue-actions">
                 {{d-button action="confirmFailedPost"
                               actionParam=post
