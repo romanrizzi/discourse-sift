@@ -85,10 +85,10 @@ class Sift
 
           sift_response = JSON.parse(response.body)
           
-          Rails.logger.error("sift_debug: Before response custom fields save #{to_classify.custom_fields.inspect}")
+          #Rails.logger.error("sift_debug: Before response custom fields save #{to_classify.custom_fields.inspect}")
           to_classify.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD] = sift_response
           to_classify.save_custom_fields(true)
-          Rails.logger.error("sift_debug: After response custom fields save #{to_classify.custom_fields.inspect}")
+          #Rails.logger.error("sift_debug: After response custom fields save #{to_classify.custom_fields.inspect}")
             
           #Rails.logger.error("sift_debug: Before validate...")
             
