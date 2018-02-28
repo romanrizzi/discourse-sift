@@ -47,7 +47,9 @@ after_initialize do
     #  Not sure if this is a problem, but maybe there is a path forward that can classify
     #  a delta or something?
     #
+    
     #Rails.logger.error("sift_debug: Enter post_edited")
+    #Rails.logger.error("sift_debug: custom_fields: #{post.custom_fields.inspect}")
     if DiscourseSift.should_classify_post?(post)
       # Classify Post
       DiscourseSift.classify_post(post)

@@ -115,9 +115,11 @@ module DiscourseSift
     opts ||= {}
     return if post.blank? || SiteSetting.sift_api_key.blank?
 
+    Rails.logger.error("sift_debug: Before move state custom fields save #{post.custom_fields.inspect}")
     post.custom_fields['SIFT_STATE'] = state
 
     post.save_custom_fields
+    Rails.logger.error("sift_debug: After move state custom fields save #{post.custom_fields.inspect}")
 
     msg = { sift_review_count: DiscourseSift.requires_moderation.count }
     MessageBus.publish('/sift_counts', msg, user_ids: User.staff.pluck(:id))
