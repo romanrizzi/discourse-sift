@@ -74,20 +74,25 @@ module DiscourseSift
         #
 
         #Rails.logger.error("sift_debug: Moderating Post")
-        
-        # Post Removed Due To Content
-        PostDestroyer.new(Discourse.system_user, post).destroy
 
-        # Mark Post For Requires Moderation
-        DiscourseSift.move_to_state(post, 'requires_moderation')
+        # Should post be hidden/deleted until moderation?
+        if !SiteSetting.sift_post_stay_visible
+          # Post Removed Due To Content
+          PostDestroyer.new(Discourse.system_user, post).destroy
 
-        #Notify User
-        if SiteSetting.sift_notify_user
-          SystemMessage.new(post.user).create(
+          # TODO: Maybe a different message if post sent to mod but still visible?
+          #Notify User
+          if SiteSetting.sift_notify_user
+            SystemMessage.new(post.user).create(
               'sift_human_moderation',
               topic_title: post.topic.title
-          )
+            )
+          end
+
         end
+        
+        # Mark Post For Requires Moderation
+        DiscourseSift.move_to_state(post, 'requires_moderation')
 
         # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
         DiscourseEvent.trigger(:sift_post_failed_policy_guide)
