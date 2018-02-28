@@ -41,7 +41,11 @@ module DiscourseSift
     DiscourseSift.with_client do |client|
       result = client.submit_for_classification(post)
 
+      #Rails.logger.error("sift_debug: classify_post Enter: #{result.inspect}")
+      
       if !result.response && result.over_any_max_risk  #Fails policy auto denied
+
+        #Rails.logger.error("sift_debug: Autodeleting Post")
 
         # Post Removed Due To Content
         PostDestroyer.new(Discourse.system_user, post).destroy
@@ -69,6 +73,8 @@ module DiscourseSift
         #       to do that.
         #
 
+        #Rails.logger.error("sift_debug: Moderating Post")
+        
         # Post Removed Due To Content
         PostDestroyer.new(Discourse.system_user, post).destroy
 
@@ -88,6 +94,8 @@ module DiscourseSift
 
       else
 
+        #Rails.logger.error("sift_debug: Post passes.  post: #{post.inspect}")
+        
         # Make post as passed policy guide
         DiscourseSift.move_to_state(post, 'pass_policy_guide')
 
