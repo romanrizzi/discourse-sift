@@ -28,32 +28,43 @@ after_initialize do
 
   # Store Sift Data
   on(:post_created) do |post, params|
-    #Rails.logger.error("sift_debug: Enter post_created")
-    if DiscourseSift.should_classify_post?(post)
-      # Classify Post
-      DiscourseSift.classify_post(post)
+    begin
+      #Rails.logger.error("sift_debug: Enter post_created")
+      if DiscourseSift.should_classify_post?(post)
+        # Classify Post
+        DiscourseSift.classify_post(post)
+      end
+    rescue Exception => e
+      Rails.logger.error("sift_debug: Exception in post_create: #{e.inspect}")
+      raise e
     end
+
   end
 
   on(:post_edited) do |post, params|
-    #
-    # TODO: If a post is edited, it is re-classified in it's entirety.  This could lead
-    #       to:
-    #         - Post created that fails classification
-    #         - Moderator marks post as okay
-    #         - user edits post
-    #         - Post is reclassified, and the content that failed before will fail again
-    #           even if new content would not fail
-    #         - Post is marked for moderation again
-    #  Not sure if this is a problem, but maybe there is a path forward that can classify
-    #  a delta or something?
-    #
-    
-    #Rails.logger.error("sift_debug: Enter post_edited")
-    #Rails.logger.error("sift_debug: custom_fields: #{post.custom_fields.inspect}")
-    if DiscourseSift.should_classify_post?(post)
-      # Classify Post
-      DiscourseSift.classify_post(post)
+    begin
+      #
+      # TODO: If a post is edited, it is re-classified in it's entirety.  This could lead
+      #       to:
+      #         - Post created that fails classification
+      #         - Moderator marks post as okay
+      #         - user edits post
+      #         - Post is reclassified, and the content that failed before will fail again
+      #           even if new content would not fail
+      #         - Post is marked for moderation again
+      #  Not sure if this is a problem, but maybe there is a path forward that can classify
+      #  a delta or something?
+      #
+      
+      #Rails.logger.error("sift_debug: Enter post_edited")
+      #Rails.logger.error("sift_debug: custom_fields: #{post.custom_fields.inspect}")
+      if DiscourseSift.should_classify_post?(post)
+        # Classify Post
+        DiscourseSift.classify_post(post)
+      end
+    rescue Exception => e
+      Rails.logger.error("sift_debug: Exception in post_edited: #{e.inspect}")
+      raise e
     end
   end
 

@@ -69,6 +69,7 @@ class Sift
         end
 
         def submit_for_classification(to_classify)
+          #Rails.logger.error("sift_debug: submit_for_classification Enter")
           response = post(@end_point, to_classify)
           
           #Rails.logger.error("sift_debug: #{response.inspect}")
