@@ -39,9 +39,11 @@ module DiscourseSift
 
   def self.classify_post(post)
     DiscourseSift.with_client do |client|
+      #Rails.logger.error("sift_debug: classify_post Enter: #{post.inspect}")
+
       result = client.submit_for_classification(post)
 
-      #Rails.logger.error("sift_debug: classify_post Enter: #{result.inspect}")
+      #Rails.logger.error("sift_debug: classify_post after submit: #{result.inspect}")
       
       if !result.response && result.over_any_max_risk  #Fails policy auto denied
 
@@ -75,27 +77,43 @@ module DiscourseSift
 
         #Rails.logger.error("sift_debug: Moderating Post")
 
-        # Should post be hidden/deleted until moderation?
-        if !SiteSetting.sift_post_stay_visible
-          # Post Removed Due To Content
-          PostDestroyer.new(Discourse.system_user, post).destroy
+        # Use the Discourse Flag Queue?
+        # TODO: For now this assumes the user is going to use
+        #   the default flag queue settings for visiblilty and
+        #   moderation.  Have to do this right now, because the
+        #   default behaviour of the Sift custom queue is to delete
+        #   the post to hide it, and this screws up the default Flagged queue
+        if SiteSetting.sift_use_standard_queue
+          PostAction.act(
+            Discourse.system_user,
+            post,
+            PostActionType.types[:notify_moderators],
+            message: I18n.t('sift_flag_message')
+          )
 
-          # TODO: Maybe a different message if post sent to mod but still visible?
-          #Notify User
-          if SiteSetting.sift_notify_user
-            SystemMessage.new(post.user).create(
-              'sift_human_moderation',
-              topic_title: post.topic.title
-            )
+        else
+          # Should post be hidden/deleted until moderation?
+          if !SiteSetting.sift_post_stay_visible
+            # Post Removed Due To Content
+            PostDestroyer.new(Discourse.system_user, post).destroy
+
+            # TODO: Maybe a different message if post sent to mod but still visible?
+            #Notify User
+            if SiteSetting.sift_notify_user
+              SystemMessage.new(post.user).create(
+                'sift_human_moderation',
+                topic_title: post.topic.title
+              )
+            end
           end
 
-        end
-        
-        # Mark Post For Requires Moderation
-        DiscourseSift.move_to_state(post, 'requires_moderation')
+          # Mark Post For Requires Moderation
+          DiscourseSift.move_to_state(post, 'requires_moderation')
 
-        # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
-        DiscourseEvent.trigger(:sift_post_failed_policy_guide)
+          # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
+          DiscourseEvent.trigger(:sift_post_failed_policy_guide)
+
+        end
 
       else
 

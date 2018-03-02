@@ -17,6 +17,9 @@ plugins:
   sift_post_stay_visible:
     default: false
     shadowed_by_global: true
+  sift_use_standard_queue:
+    default: false
+    shadowed_by_global: true
   sift_general_deny_level:
     default: '8'
     min: '0'
