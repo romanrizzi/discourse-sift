@@ -69,6 +69,7 @@ class Sift
         end
 
         def submit_for_classification(to_classify)
+          #Rails.logger.error("sift_debug: submit_for_classification Enter")
           response = post(@end_point, to_classify)
           
           #Rails.logger.error("sift_debug: #{response.inspect}")
@@ -83,29 +84,34 @@ class Sift
             response = Excon::Response.new(:body => data)
           end
 
+          sift_response = JSON.parse(response.body)
+          
+          #Rails.logger.error("sift_debug: Before response custom fields save #{to_classify.custom_fields.inspect}")
+          to_classify.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD] = sift_response
+          to_classify.save_custom_fields(true)
+          #Rails.logger.error("sift_debug: After response custom fields save #{to_classify.custom_fields.inspect}")
             
           #Rails.logger.error("sift_debug: Before validate...")
             
-          validate_classification(response)
+          validate_classification(sift_response)
             
         end
 
         private
 
-        def validate_classification(response)
+        def validate_classification(sift_response)
           # TODO: Handle errors better?  Currently any issues with connection including incorrect API key leads to
           #       every post needing moderation
-          hash = JSON.parse(response.body)
-          
-          #Rails.logger.error("sift_debug: hash = #{hash.inspect}")
 
-          hash_topics = hash.fetch('topics', {})
+          #Rails.logger.error("sift_debug: hash = #{sift_response.inspect}")
+
+          hash_topics = sift_response.fetch('topics', {})
           hash_topics.default = 0
           
           
           result_risk = Sift::Risk.new(
-            risk:           (if hash['risk'].nil?; 0; else; hash['risk'].to_i; end;),
-            response:       !!hash['response'],
+            risk:           (if sift_response['risk'].nil?; 0; else; sift_response['risk'].to_i; end;),
+            response:       !!sift_response['response'],
             topic_hash: hash_topics
           )
 
@@ -113,41 +119,46 @@ class Sift
         end
 
         def post(target, to_classify)
-            # Assume topic_id and player_id are no more than 1000 chars
-            # Send a maximum of 31000 chars which is the default for
-            # maximum post length site settings.
-            #
+          # Assume topic_id and player_id are no more than 1000 chars
+          # Send a maximum of 31000 chars which is the default for
+          # maximum post length site settings.
+          #
 
-            #Rails.logger.error("sift_debug: #{to_classify.inspect}")
-                        
-            request_url = "#{@api_url}/#{target}"
-            request_body= {
-                'subcategory' => "#{to_classify.topic.id}",
-                'user_id' => "#{to_classify.user.id}",
-                'user_display_name' => "#{to_classify.user.username}",
-                'content_id' => "#{to_classify.id}",
-                'text' =>  "#{to_classify.raw.strip[0..30999]}"
-            }.to_json
+          #Rails.logger.error("sift_debug: #{to_classify.inspect}")
 
-            # TODO: look at using persistent connections.
-            # TODO: Need to handle errors (e.g. incorrect API key)
-            
-            #Rails.logger.error("sift_debug: #{request_body.inspect}")
-            
-            response = begin
-                 result = Excon.post(request_url,
-                    body: request_body,
-                    headers: {
-                        'Content-Type' => 'application/json',
-                    },
-                    :user => 'discourse-plugin',
-                    :password => @api_key
-                )
-                result
-            rescue
-                nil
-            end
-            response
+          # Account for a '/' or not at start of endpoint
+          if !target.start_with? '/'
+            target.prepend('/')
+          end
+          
+          request_url = "#{@api_url}#{target}"
+          request_body= {
+            'subcategory' => "#{to_classify.topic.id}",
+            'user_id' => "#{to_classify.user.id}",
+            'user_display_name' => "#{to_classify.user.username}",
+            'content_id' => "#{to_classify.id}",
+            'text' =>  "#{to_classify.raw.strip[0..30999]}"
+          }.to_json
+
+          # TODO: look at using persistent connections.
+          # TODO: Need to handle errors (e.g. incorrect API key)
+          
+          #Rails.logger.error("sift_debug: #{request_body.inspect}")
+          
+          response = begin
+                       result = Excon.post(request_url,
+                                           body: request_body,
+                                           headers: {
+                                             'Content-Type' => 'application/json',
+                                           },
+                                           :user => 'discourse-plugin',
+                                           :password => @api_key
+                                          )
+                       result
+                     rescue
+                       nil
+                     end
+          response
         end
     end
 end

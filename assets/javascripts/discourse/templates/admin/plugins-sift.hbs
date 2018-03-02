@@ -37,6 +37,18 @@
                 <a href={{post.url}} target="_blank" class="post-link">#{{post.id}}</a>
               </div>
               {{{post.excerpt}}}
+              <div class="sift-classification">
+                {{#if post.sift_response }}
+		  {{#each-in post.sift_response.topics as |topicKey topicValue|}}
+		  <span class="sift-classification-unit">
+		    <span class="sift-topic sift-topic-{{topicKey}}"></span>
+		    <span class="sift-risk sift-risk-{{topicValue}}">{{topicValue}}</span>
+		  </span>  
+		  {{/each-in}}
+		{{~else~}}
+		  <span>No Sift Info available</span>
+		{{/if}}
+              </div>
               <div class="queue-actions">
                 {{d-button action="confirmFailedPost"
                               actionParam=post

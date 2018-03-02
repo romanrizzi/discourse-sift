@@ -9,10 +9,16 @@ plugins:
     default: 'https://replace.with.your.api.uri'
     shadowed_by_global: true
   sift_end_point:
-    default: 'v1/chat'
+    default: '/v1/chat'
     shadowed_by_global: true
   sift_notify_user:
     default: true
+    shadowed_by_global: true
+  sift_post_stay_visible:
+    default: false
+    shadowed_by_global: true
+  sift_use_standard_queue:
+    default: false
     shadowed_by_global: true
   sift_general_deny_level:
     default: '8'

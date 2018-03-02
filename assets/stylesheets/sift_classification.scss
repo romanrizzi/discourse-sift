@@ -1,0 +1,37 @@
+
+$topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Drugs', 'InGame', 'Alarm', 'Fraud', 'Racist', 'Religion', 'Junk', 'Website', 'Grooming', 'Public Threats', 'Real Name', 'Terrorist Recruitment', 'Subversive', 'Sentiment', 'Politics', 'Unused 21, 'Unused 22, 'Unused 23, 'Unused 24, 'Unused 25, 'Unused 26, 'Custom1', 'Custom2', 'Custom3', 'Custom4', 'Custom5';
+
+.sift-classification {
+  margin-top: 10px;
+}
+
+@for $i from 0 to length($topic_list) {
+  .sift-topic-#{$i} {
+    
+    &:before {
+        content: nth($topic_list, $i+1);
+    }
+    
+  }
+}
+
+
+.sift-classification-unit {
+  background: #e6f2ff;
+
+  padding: 3px 5px;
+  border: solid 1px grey
+
+}
+
+.sift-classification-unit+.sift-classification-unit {
+  margin-left: 10px;
+}
+
+.sift-topic {
+    
+}
+
+
+.sift-risk {
+}

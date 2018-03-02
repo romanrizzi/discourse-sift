@@ -1,6 +1,6 @@
 # name: discourse-sift
 # about: supports content classifying of posts to Community Sift
-# version: 0.1.3
+# version: 0.1.4
 # authors: Richard Kellar
 # url: https://github.com/sift/discourse-sift
 
@@ -12,6 +12,7 @@ load File.expand_path('../lib/sift.rb', __FILE__)
 load File.expand_path('../lib/discourse_sift/engine.rb', __FILE__)
 
 register_asset "stylesheets/mod_queue_styles.scss"
+register_asset "stylesheets/sift_classification.scss"
 
 after_initialize do
 
@@ -27,30 +28,43 @@ after_initialize do
 
   # Store Sift Data
   on(:post_created) do |post, params|
-    #Rails.logger.error("sift_debug: Enter post_created")
-    if DiscourseSift.should_classify_post?(post)
-      # Classify Post
-      DiscourseSift.classify_post(post)
+    begin
+      #Rails.logger.error("sift_debug: Enter post_created")
+      if DiscourseSift.should_classify_post?(post)
+        # Classify Post
+        DiscourseSift.classify_post(post)
+      end
+    rescue Exception => e
+      Rails.logger.error("sift_debug: Exception in post_create: #{e.inspect}")
+      raise e
     end
+
   end
 
   on(:post_edited) do |post, params|
-    #
-    # TODO: If a post is edited, it is re-classified in it's entirety.  This could lead
-    #       to:
-    #         - Post created that fails classification
-    #         - Moderator marks post as okay
-    #         - user edits post
-    #         - Post is reclassified, and the content that failed before will fail again
-    #           even if new content would not fail
-    #         - Post is marked for moderation again
-    #  Not sure if this is a problem, but maybe there is a path forward that can classify
-    #  a delta or something?
-    #
-    #Rails.logger.error("sift_debug: Enter post_edited")
-    if DiscourseSift.should_classify_post?(post)
-      # Classify Post
-      DiscourseSift.classify_post(post)
+    begin
+      #
+      # TODO: If a post is edited, it is re-classified in it's entirety.  This could lead
+      #       to:
+      #         - Post created that fails classification
+      #         - Moderator marks post as okay
+      #         - user edits post
+      #         - Post is reclassified, and the content that failed before will fail again
+      #           even if new content would not fail
+      #         - Post is marked for moderation again
+      #  Not sure if this is a problem, but maybe there is a path forward that can classify
+      #  a delta or something?
+      #
+      
+      #Rails.logger.error("sift_debug: Enter post_edited")
+      #Rails.logger.error("sift_debug: custom_fields: #{post.custom_fields.inspect}")
+      if DiscourseSift.should_classify_post?(post)
+        # Classify Post
+        DiscourseSift.classify_post(post)
+      end
+    rescue Exception => e
+      Rails.logger.error("sift_debug: Exception in post_edited: #{e.inspect}")
+      raise e
     end
   end
 
@@ -60,6 +74,12 @@ after_initialize do
 
   add_to_serializer(:current_user, :sift_review_count) do
     scope.can_view_sift? ? DiscourseSift.requires_moderation.count : nil
+  end
+
+  register_post_custom_field_type(DiscourseSift::RESPONSE_CUSTOM_FIELD, :json)
+  
+  add_to_serializer(:post, :sift_response) do
+    post_custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]
   end
 
 end
