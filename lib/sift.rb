@@ -42,7 +42,7 @@ class Sift
           unless topic_name.nil?
             site_setting_name = "sift_#{topic_name}_deny_level"
             max_risk = SiteSetting.send(site_setting_name)
-            if !max_risk.nil? and risk.to_i >= max_risk.to_i
+            if !max_risk.nil? and risk.to_i > max_risk.to_i
               #Rails.logger.error("sift_debug: risk greater than max")
               return true
             end
