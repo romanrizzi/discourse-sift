@@ -52,6 +52,20 @@ class Sift
         result
       end
 
+      def topic_string
+        # Return a string with the topics and risk level enumerated
+        # Simple way to output classification
+        result = ""
+        @topic_hash.each do |topic_id, risk|
+          topic_name = TopicMap[topic_id.to_i]
+          unless topic_name.nil?
+            result = result + " #{topic_name}: #{risk.to_i}"
+          end
+        end
+
+        result
+      end
+        
     end
 
     class Client
