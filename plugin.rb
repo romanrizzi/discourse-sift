@@ -1,7 +1,7 @@
 # name: discourse-sift
 # about: supports content classifying of posts to Community Sift
-# version: 0.1.4
-# authors: Richard Kellar
+# version: 0.1.5
+# authors: Richard Kellar, George Thomson
 # url: https://github.com/sift/discourse-sift
 
 enabled_site_setting :sift_enabled
@@ -17,22 +17,29 @@ register_asset "stylesheets/sift_classification.scss"
 after_initialize do
 
   #
-  # TODO:  Need to hook on post edits as well.  Any other hooks we need?
-  #
   # TODO: Investigate "before_create_post", "validate_post", PostValidator, PostAnalyzer
   #
   # TODO: [minor] Admin moderation queue does not include topic title, which could be a small issue if the title
   #       of a new topic fails classification but the content is fine.  Minor issue, as moderator has access to the
   #       full topic from a link.
-  # TODO: Title for new toics not classified
 
+  # Jobs
+  require_dependency File.expand_path('../jobs/classify_post.rb', __FILE__)
+  
   # Store Sift Data
   on(:post_created) do |post, params|
     begin
       #Rails.logger.error("sift_debug: Enter post_created")
       if DiscourseSift.should_classify_post?(post)
-        # Classify Post
-        DiscourseSift.classify_post(post)
+        if SiteSetting.sift_use_async_check?
+          # Use Job queue
+          Rails.logger.debug("sift_debug: Using Job method")
+          Jobs.enqueue(:classify_post, post_id: post.id)
+        else
+          # Classify Post directly
+          Rails.logger.debug("sift_debug: classify directly")
+          DiscourseSift.classify_post(post)
+        end
       end
     rescue Exception => e
       Rails.logger.error("sift_debug: Exception in post_create: #{e.inspect}")
