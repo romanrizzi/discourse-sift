@@ -68,11 +68,11 @@ after_initialize do
       if DiscourseSift.should_classify_post?(post)
         if SiteSetting.sift_use_async_check?
           # Use Job queue
-          Rails.logger.debug("sift_debug: Edit Using Job method")
+          #Rails.logger.debug("sift_debug: Edit Using Job method")
           Jobs.enqueue(:classify_post, post_id: post.id)
         else
           # Classify Post directly
-          Rails.logger.debug("sift_debug: Edit classify directly")
+          #Rails.logger.debug("sift_debug: Edit classify directly")
           DiscourseSift.classify_post(post)
         end
       end

@@ -6,14 +6,14 @@ module Jobs
 
     # Send a post to Sift for classification
     def execute(args)
-      Rails.logger.debug("sift_debug: classify_post job: enter")
+      #Rails.logger.debug("sift_debug: classify_post job: enter")
       raise Discourse::InvalidParameters.new(:post_id) unless args[:post_id].present?
       return unless SiteSetting.sift_enabled?
 
       post = Post.where(id: args[:post_id], user_deleted: false).first
       return unless post.present?
 
-      Rails.logger.debug("sift_debug: classify_post job: before classifiy")
+      #Rails.logger.debug("sift_debug: classify_post job: before classifiy")
       DiscourseSift.classify_post(post)
     end
   end
