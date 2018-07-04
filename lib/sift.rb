@@ -42,7 +42,7 @@ class Sift
           unless topic_name.nil?
             site_setting_name = "sift_#{topic_name}_deny_level"
             max_risk = SiteSetting.send(site_setting_name)
-            if !max_risk.nil? and risk.to_i >= max_risk.to_i
+            if !max_risk.nil? and risk.to_i > max_risk.to_i
               #Rails.logger.error("sift_debug: risk greater than max")
               return true
             end
@@ -52,6 +52,20 @@ class Sift
         result
       end
 
+      def topic_string
+        # Return a string with the topics and risk level enumerated
+        # Simple way to output classification
+        result = ""
+        @topic_hash.each do |topic_id, risk|
+          topic_name = TopicMap[topic_id.to_i]
+          unless topic_name.nil?
+            result = result + " #{topic_name}: #{risk.to_i}"
+          end
+        end
+
+        result
+      end
+        
     end
 
     class Client
