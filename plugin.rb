@@ -66,8 +66,15 @@ after_initialize do
       #Rails.logger.error("sift_debug: Enter post_edited")
       #Rails.logger.error("sift_debug: custom_fields: #{post.custom_fields.inspect}")
       if DiscourseSift.should_classify_post?(post)
-        # Classify Post
-        DiscourseSift.classify_post(post)
+        if SiteSetting.sift_use_async_check?
+          # Use Job queue
+          Rails.logger.debug("sift_debug: Edit Using Job method")
+          Jobs.enqueue(:classify_post, post_id: post.id)
+        else
+          # Classify Post directly
+          Rails.logger.debug("sift_debug: Edit classify directly")
+          DiscourseSift.classify_post(post)
+        end
       end
     rescue Exception => e
       Rails.logger.error("sift_debug: Exception in post_edited: #{e.inspect}")
