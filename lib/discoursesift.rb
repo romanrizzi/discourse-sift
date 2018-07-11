@@ -43,7 +43,7 @@ module DiscourseSift
 
       result = client.submit_for_classification(post)
 
-      #Rails.logger.error("sift_debug: classify_post after submit: #{result.inspect}")
+      Rails.logger.error("sift_debug: classify_post after submit: #{result.inspect}")
       
       if !result.response && result.over_any_max_risk  #Fails policy auto denied
 
@@ -88,7 +88,10 @@ module DiscourseSift
             Discourse.system_user,
             post,
             PostActionType.types[:notify_moderators],
-            message: I18n.t('sift_flag_message')
+
+            # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
+            #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
+            message: I18n.t('sift_flag_message') + result.topic_string
           )
 
         else

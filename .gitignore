@@ -9,3 +9,4 @@ test/dummy/tmp/
 test/dummy/.sass-cache
 gems
 .DS_Store
+*~
