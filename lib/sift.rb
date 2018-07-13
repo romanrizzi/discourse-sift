@@ -23,13 +23,13 @@ class Sift
     18 => 'subversive',
     19 => 'sentiment'
   }
-  
+
   class Error < StandardError; end
 
     class Risk
       attr_accessor :risk, :response
 
-      def initialize(risk:, response:, topic_hash:)        
+      def initialize(risk:, response:, topic_hash:)
         @risk = risk,
         @response = response
         @topic_hash = topic_hash
@@ -65,7 +65,7 @@ class Sift
 
         result
       end
-        
+
     end
 
     class Client
@@ -85,7 +85,7 @@ class Sift
         def submit_for_classification(to_classify)
           #Rails.logger.error("sift_debug: submit_for_classification Enter")
           response = post(@end_point, to_classify)
-          
+
           #Rails.logger.error("sift_debug: #{response.inspect}")
           if response.nil? || response.status != 200
             #if there is an error reaching Community Sift, escalate to human moderation
@@ -99,16 +99,16 @@ class Sift
           end
 
           sift_response = JSON.parse(response.body)
-          
+
           #Rails.logger.error("sift_debug: Before response custom fields save #{to_classify.custom_fields.inspect}")
           to_classify.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD] = sift_response
           to_classify.save_custom_fields(true)
           #Rails.logger.error("sift_debug: After response custom fields save #{to_classify.custom_fields.inspect}")
-            
+
           #Rails.logger.error("sift_debug: Before validate...")
-            
+
           validate_classification(sift_response)
-            
+
         end
 
         private
@@ -121,8 +121,8 @@ class Sift
 
           hash_topics = sift_response.fetch('topics', {})
           hash_topics.default = 0
-          
-          
+
+
           result_risk = Sift::Risk.new(
             risk:           (if sift_response['risk'].nil?; 0; else; sift_response['risk'].to_i; end;),
             response:       !!sift_response['response'],
@@ -142,9 +142,9 @@ class Sift
 
           # Account for a '/' or not at start of endpoint
           if !target.start_with? '/'
-            target.prepend('/')
+            target = "/#{target}"
           end
-          
+
           request_url = "#{@api_url}#{target}"
           request_body= {
             'subcategory' => "#{to_classify.topic.id}",
@@ -156,9 +156,9 @@ class Sift
 
           # TODO: look at using persistent connections.
           # TODO: Need to handle errors (e.g. incorrect API key)
-          
+
           #Rails.logger.error("sift_debug: #{request_body.inspect}")
-          
+
           response = begin
                        result = Excon.post(request_url,
                                            body: request_body,
@@ -176,5 +176,3 @@ class Sift
         end
     end
 end
-            
-        
