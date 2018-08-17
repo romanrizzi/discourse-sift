@@ -87,7 +87,7 @@ module DiscourseSift
           PostAction.act(
             Discourse.system_user,
             post,
-            PostActionType.types[:notify_moderators],
+            PostActionType.types[:inappropriate],
 
             # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
             #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
