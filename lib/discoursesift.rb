@@ -43,7 +43,7 @@ module DiscourseSift
 
       result = client.submit_for_classification(post)
 
-      Rails.logger.error("sift_debug: classify_post after submit: #{result.inspect}")
+      Rails.logger.debug("sift_debug: classify_post after submit: #{result.inspect}")
       
       if !result.response && result.over_any_max_risk  #Fails policy auto denied
 

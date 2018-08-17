@@ -33,11 +33,11 @@ after_initialize do
       if DiscourseSift.should_classify_post?(post)
         if SiteSetting.sift_use_async_check?
           # Use Job queue
-          Rails.logger.debug("sift_debug: Using Job method")
+          #Rails.logger.debug("sift_debug: Using Job method")
           Jobs.enqueue(:classify_post, post_id: post.id)
         else
           # Classify Post directly
-          Rails.logger.debug("sift_debug: classify directly")
+          #Rails.logger.debug("sift_debug: classify directly")
           DiscourseSift.classify_post(post)
         end
       end
@@ -91,6 +91,7 @@ after_initialize do
   end
 
   register_post_custom_field_type(DiscourseSift::RESPONSE_CUSTOM_FIELD, :json)
+  #whitelist_flag_post_custom_field(DiscourseSift::RESPONSE_CUSTOM_FIELD)
   
   add_to_serializer(:post, :sift_response) do
     post_custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]
