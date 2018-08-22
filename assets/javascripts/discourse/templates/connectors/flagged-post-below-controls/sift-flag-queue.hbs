@@ -1,0 +1,12 @@
+<div class="sift-classification">
+  {{#if flaggedPost.custom_fields.sift }}
+    {{#each-in flaggedPost.custom_fields.sift.topics as |topicKey topicValue|}}
+      <span class="sift-classification-unit sift-risk-{{topicValue}}">
+        <span class="sift-topic sift-topic-{{topicKey}}"></span>
+        <span class="sift-risk sift-risk-{{topicValue}}">{{topicValue}}</span>
+      </span>  
+    {{/each-in}}
+  {{~else~}}
+    <span>No Sift Info available</span>
+  {{/if}}
+</div>

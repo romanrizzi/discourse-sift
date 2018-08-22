@@ -91,7 +91,7 @@ after_initialize do
   end
 
   register_post_custom_field_type(DiscourseSift::RESPONSE_CUSTOM_FIELD, :json)
-  #whitelist_flag_post_custom_field(DiscourseSift::RESPONSE_CUSTOM_FIELD)
+  whitelist_flag_post_custom_field(DiscourseSift::RESPONSE_CUSTOM_FIELD)
   
   add_to_serializer(:post, :sift_response) do
     post_custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]
