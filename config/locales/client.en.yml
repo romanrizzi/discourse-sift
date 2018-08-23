@@ -24,4 +24,5 @@ en:
 
       not_enabled: "Community Sift is not enabled right now."
       change_settings: "Change Settings"
-      no_sift_info: "No Sift Info available"
+      no_sift_info: "No Sift info available"
+      no_sift_tokenized: "No Sift tokenized breakdown available"
