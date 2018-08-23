@@ -40,7 +40,7 @@
               <div class="sift-classification">
                 {{#if post.sift_response }}
 		  {{#each-in post.sift_response.topics as |topicKey topicValue|}}
-		  <span class="sift-classification-unit">
+                  <span class="sift-classification-unit sift-risk-{{topicValue}}">
 		    <span class="sift-topic sift-topic-{{topicKey}}"></span>
 		    <span class="sift-risk sift-risk-{{topicValue}}">{{topicValue}}</span>
 		  </span>  

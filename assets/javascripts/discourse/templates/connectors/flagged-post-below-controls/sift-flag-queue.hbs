@@ -1,12 +1,25 @@
 <div class="sift-classification">
   {{#if flaggedPost.custom_fields.sift }}
+    <div>
     {{#each-in flaggedPost.custom_fields.sift.topics as |topicKey topicValue|}}
       <span class="sift-classification-unit sift-risk-{{topicValue}}">
         <span class="sift-topic sift-topic-{{topicKey}}"></span>
         <span class="sift-risk sift-risk-{{topicValue}}">{{topicValue}}</span>
       </span>  
     {{/each-in}}
+    </div>
+    {{#if flaggedPost.custom_fields.sift.tokenized_solution}}
+      <div>
+      {{#each flaggedPost.custom_fields.sift.tokenized_solution.slots as |slot|}}
+      <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left 'sift-unit-join-left'}} {{if slot.join_right 'sift-unit-join-right'}}">
+        {{slot.text}}
+      </span>
+      {{/each}}
+      </div>
+    {{~else~}}
+      <span>{{i18n 'sift.no_sift_tokenized'}}</span>
+    {{/if}}
   {{~else~}}
-    <span>No Sift Info available</span>
+    <span>{{i18n 'sift.no_sift_info'}}</span>
   {{/if}}
 </div>

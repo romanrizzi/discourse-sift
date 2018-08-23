@@ -117,7 +117,7 @@ class Sift
           # TODO: Handle errors better?  Currently any issues with connection including incorrect API key leads to
           #       every post needing moderation
 
-          #Rails.logger.error("sift_debug: hash = #{sift_response.inspect}")
+          Rails.logger.debug("sift_debug: response = #{sift_response.inspect}")
 
           hash_topics = sift_response.fetch('topics', {})
           hash_topics.default = 0
@@ -138,6 +138,17 @@ class Sift
           # maximum post length site settings.
           #
 
+          request_text = "#{to_classify.raw.strip[0..30999]}"
+          # If this is the first post, also classify the Topic title
+          # TODO: Is this the best way to check for a new/editied topic?
+          #   Testing shows that the post is always post_number 1 for new
+          #   topics, and edits just to Title of topic also pass the post here
+          # TODO: Should title be classified separately rather than pre-pending
+          #   to the post text?
+          if to_classify.post_number == 1
+            request_text = "#{to_classify.topic.title} #{request_text}"
+          end
+
           #Rails.logger.error("sift_debug: #{to_classify.inspect}")
 
           # Account for a '/' or not at start of endpoint
@@ -151,13 +162,13 @@ class Sift
             'user_id' => "#{to_classify.user.id}",
             'user_display_name' => "#{to_classify.user.username}",
             'content_id' => "#{to_classify.id}",
-            'text' =>  "#{to_classify.raw.strip[0..30999]}"
+            'text' =>  request_text
           }.to_json
 
           # TODO: look at using persistent connections.
           # TODO: Need to handle errors (e.g. incorrect API key)
 
-          #Rails.logger.error("sift_debug: #{request_body.inspect}")
+          #Rails.logger.debug("sift_debug: #{request_body.inspect}")
 
           response = begin
                        result = Excon.post(request_url,
