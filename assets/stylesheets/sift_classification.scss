@@ -2,7 +2,7 @@
 $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Drugs', 'InGame', 'Alarm', 'Fraud', 'Racist', 'Religion', 'Junk', 'Website', 'Grooming', 'Public Threats', 'Real Name', 'Terrorist Recruitment', 'Subversive', 'Sentiment', 'Politics', 'Unused 21, 'Unused 22, 'Unused 23, 'Unused 24, 'Unused 25, 'Unused 26, 'Custom1', 'Custom2', 'Custom3', 'Custom4', 'Custom5';
 
 .sift-classification {
-  margin-top: 10px;
+  line-height: 1em;
 }
 
 @for $i from 0 to length($topic_list) {
@@ -19,22 +19,23 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 .sift-classification-unit {
   background: #e6f2ff;
 
-  padding: 1px 9px 2px;
+  padding: 3px 6px;
   border: solid 1px grey;
   border-radius: 9px;
 
-  font-size: 1.2em;
+  font-size: 1em;
   font-weight: bold;
-  line-height: 12px;
   color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   white-space: nowrap;
   vertical-align: baseline;
   background-color: #999999;
+  display: inline-block;
+  margin-bottom: 7px;
 }
 
-.sift-classification-unit+.sift-classification-unit {
-  margin-left: 10px;
+.sift-classification-unit + .sift-classification-unit {
+  margin-left: 2px;
 }
 
 .sift-topic {
@@ -77,3 +78,14 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   background: #b94a48;
 }
 
+.sift-unit-join-right {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 4px solid #777;
+}
+
+.sift-unit-join-left {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left: 4px solid #777;	
+}
