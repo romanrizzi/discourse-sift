@@ -1,8 +1,9 @@
 # name: discourse-sift
 # about: supports content classifying of posts to Community Sift
-# version: 0.1.7
+# version: 0.1.8
 # authors: Richard Kellar, George Thomson
 # url: https://github.com/sift/discourse-sift
+
 
 enabled_site_setting :sift_enabled
 
