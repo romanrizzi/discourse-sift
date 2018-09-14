@@ -23,6 +23,9 @@ plugins:
   sift_use_async_check:
     default: false
     shadowed_by_global: true
+  sift_extra_flag_users:
+    default: ''
+    shadowed_by_global: true
   sift_general_deny_level:
     default: '8'
     min: '0'

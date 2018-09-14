@@ -22,9 +22,6 @@ module DiscourseSift
 
   end
 
-  # TODO: Does this create a new client with every post?  Also means that using a persistent connection for
-  # API requests is not possible.  Should probably use some caching?  Would need to make sure any caching can
-  # handle setting changes.
   def self.with_client
     Sift::Client.with_client(
         base_url: Discourse.base_url,
@@ -84,15 +81,45 @@ module DiscourseSift
         #   default behaviour of the Sift custom queue is to delete
         #   the post to hide it, and this screws up the default Flagged queue
         if SiteSetting.sift_use_standard_queue
-          PostAction.act(
-            Discourse.system_user,
-            post,
-            PostActionType.types[:inappropriate],
+          begin
+            PostAction.act(
+              Discourse.system_user,
+              post,
+              PostActionType.types[:inappropriate],
 
-            # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
-            #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
-            message: I18n.t('sift_flag_message') + result.topic_string
-          )
+              # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
+              #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
+              message: I18n.t('sift_flag_message') + result.topic_string,
+            )
+          rescue Exception => e
+            Rails.logger.error("sift_debug: Exception when trying flag as system user: #{e.inspect}")
+          end
+          
+
+          # Should we add an extra flags
+          SiteSetting.sift_extra_flag_users.split(",").each { |name|
+            name = name.strip()
+            if !name.blank?
+              begin
+                # send a flag as this user
+                flag_user = User.find_by_username(name)
+                if !flag_user.nil?
+                  PostAction.act(
+                    flag_user,
+                    post,
+                    PostActionType.types[:inappropriate],
+                    message: I18n.t('sift_flag_message') + result.topic_string,
+                  )
+                else
+                  Rails.logger.error("sift_debug: Could flag post with flag user:#{name}  Could not find user")
+                end
+              rescue Exception => e
+                Rails.logger.error("sift_debug: Exception when trying flag extra user: #{e.inspect}")
+              end
+
+            end
+          }
+          
 
         else
           # Should post be hidden/deleted until moderation?
