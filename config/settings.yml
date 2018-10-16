@@ -26,6 +26,9 @@ plugins:
   sift_extra_flag_users:
     default: ''
     shadowed_by_global: true
+  sift_error_is_false_response:
+    default: false
+    shadowed_by_global: true
   sift_general_deny_level:
     default: '8'
     min: '0'
