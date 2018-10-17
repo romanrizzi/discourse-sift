@@ -40,7 +40,7 @@ module DiscourseSift
 
       result = client.submit_for_classification(post)
 
-      Rails.logger.debug("sift_debug: classify_post after submit: #{result.inspect}")
+      #Rails.logger.debug("sift_debug: classify_post after submit: #{result.inspect}")
       
       if !result.response && result.over_any_max_risk  #Fails policy auto denied
 
@@ -81,16 +81,30 @@ module DiscourseSift
         #   default behaviour of the Sift custom queue is to delete
         #   the post to hide it, and this screws up the default Flagged queue
         if SiteSetting.sift_use_standard_queue
-          begin
-            PostAction.act(
-              Discourse.system_user,
-              post,
-              PostActionType.types[:inappropriate],
 
-              # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
-              #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
-              message: I18n.t('sift_flag_message') + result.topic_string,
-            )
+          #Rails.logger.debug("sift_debug: Flagging Post  post: #{post.inspect}")
+          #Rails.logger.debug("sift_debug:   active flags: #{post.active_flags.inspect}")
+
+          post_action_type = PostActionType.types[:inappropriate]
+          
+          begin
+
+            # Only post flag as system user if a flag does not already exist
+            if not post.active_flags.where(
+                 user_id: Discourse.system_user.id,
+                 post_action_type_id: post_action_type
+               ).exists?
+
+              PostAction.act(
+                Discourse.system_user,
+                post,
+                post_action_type,
+
+                # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
+                #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
+                message: I18n.t('sift_flag_message') + result.topic_string,
+              )
+            end
           rescue Exception => e
             Rails.logger.error("sift_debug: Exception when trying flag as system user: #{e.inspect}")
           end
@@ -104,12 +118,19 @@ module DiscourseSift
                 # send a flag as this user
                 flag_user = User.find_by_username(name)
                 if !flag_user.nil?
-                  PostAction.act(
-                    flag_user,
-                    post,
-                    PostActionType.types[:inappropriate],
-                    message: I18n.t('sift_flag_message') + result.topic_string,
-                  )
+                  # Only post a flag as this user if one does not already exist
+                  if not post.active_flags.where(
+                           user_id: flag_user.id,
+                           post_action_type_id: post_action_type
+                         ).exists?
+
+                    PostAction.act(
+                      flag_user,
+                      post,
+                      post_action_type,
+                      message: I18n.t('sift_flag_message') + result.topic_string,
+                    )
+                  end
                 else
                   Rails.logger.error("sift_debug: Could flag post with flag user:#{name}  Could not find user")
                 end
