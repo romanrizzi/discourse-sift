@@ -155,7 +155,7 @@ class Sift
           #   topics, and edits just to Title of topic also pass the post here
           # TODO: Should title be classified separately rather than pre-pending
           #   to the post text?
-          if to_classify.post_number == 1
+          if to_classify.is_first_post?
             request_text = "#{to_classify.topic.title} #{request_text}"
           end
 
