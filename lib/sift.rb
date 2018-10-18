@@ -159,7 +159,7 @@ class Sift
             request_text = "#{to_classify.topic.title} #{request_text}"
           end
 
-          #Rails.logger.error("sift_debug: #{to_classify.inspect}")
+          #Rails.logger.debug("sift_debug: to_classify = #{to_classify.inspect}")
 
           # Account for a '/' or not at start of endpoint
           if !target.start_with? '/'
@@ -168,17 +168,17 @@ class Sift
 
           request_url = "#{@api_url}#{target}"
           request_body= {
-            'subcategory' => "#{to_classify.topic.id}",
+            'category' => "#{to_classify.topic&.category&.id}",
+            'subcategory' => "#{to_classify.topic&.id}",
             'user_id' => "#{to_classify.user.id}",
             'user_display_name' => "#{to_classify.user.username}",
             'content_id' => "#{to_classify.id}",
             'text' =>  request_text
           }.to_json
 
-          # TODO: look at using persistent connections.
           # TODO: Need to handle errors (e.g. incorrect API key)
 
-          #Rails.logger.debug("sift_debug: #{request_body.inspect}")
+          #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
 
           response = begin
                        result = Excon.post(request_url,
