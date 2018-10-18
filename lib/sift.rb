@@ -90,9 +90,19 @@ class Sift
           if response.nil? || response.status != 200
             #if there is an error reaching Community Sift, escalate to human moderation
 
+            Rails.logger.error("sift_debug: Got an error from Sift: status: #{response.status} response: #{response.inspect}")
+
+            # Setting determines if the response is treated as a
+            # classification failure
+            if SiteSetting.sift_error_is_false_response
+              classification_answer = false
+            else
+              classification_answer = true
+            end
+            
             data = {
               'risk' => 0,
-              'response' => false,
+              'response' => classification_answer,
               'topics' => {}
             }.to_json
             response = Excon::Response.new(:body => data)
@@ -145,7 +155,7 @@ class Sift
           #   topics, and edits just to Title of topic also pass the post here
           # TODO: Should title be classified separately rather than pre-pending
           #   to the post text?
-          if to_classify.post_number == 1
+          if to_classify.is_first_post?
             request_text = "#{to_classify.topic.title} #{request_text}"
           end
 

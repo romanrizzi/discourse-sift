@@ -40,7 +40,7 @@ module DiscourseSift
 
       result = client.submit_for_classification(post)
 
-      Rails.logger.debug("sift_debug: classify_post after submit: #{result.inspect}")
+      #Rails.logger.debug("sift_debug: classify_post after submit: #{result.inspect}")
       
       if !result.response && result.over_any_max_risk  #Fails policy auto denied
 
@@ -81,16 +81,25 @@ module DiscourseSift
         #   default behaviour of the Sift custom queue is to delete
         #   the post to hide it, and this screws up the default Flagged queue
         if SiteSetting.sift_use_standard_queue
+
+          #Rails.logger.debug("sift_debug: Flagging Post  post: #{post.inspect}")
+          #Rails.logger.debug("sift_debug:   active flags: #{post.active_flags.inspect}")
+
+          post_action_type = PostActionType.types[:inappropriate]
+          
           begin
             PostAction.act(
               Discourse.system_user,
               post,
-              PostActionType.types[:inappropriate],
+              post_action_type,
 
               # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
               #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
               message: I18n.t('sift_flag_message') + result.topic_string,
             )
+          rescue PostAction::AlreadyActed => e
+          # Post already flagged for this user
+            nil
           rescue Exception => e
             Rails.logger.error("sift_debug: Exception when trying flag as system user: #{e.inspect}")
           end
@@ -107,12 +116,15 @@ module DiscourseSift
                   PostAction.act(
                     flag_user,
                     post,
-                    PostActionType.types[:inappropriate],
+                    post_action_type,
                     message: I18n.t('sift_flag_message') + result.topic_string,
                   )
                 else
                   Rails.logger.error("sift_debug: Could flag post with flag user:#{name}  Could not find user")
                 end
+              rescue PostAction::AlreadyActed => e
+                # Post already flagged for this user
+                nil
               rescue Exception => e
                 Rails.logger.error("sift_debug: Exception when trying flag extra user: #{e.inspect}")
               end
