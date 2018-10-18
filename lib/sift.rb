@@ -90,9 +90,19 @@ class Sift
           if response.nil? || response.status != 200
             #if there is an error reaching Community Sift, escalate to human moderation
 
+            Rails.logger.error("sift_debug: Got an error from Sift: status: #{response.status} response: #{response.inspect}")
+
+            # Setting determines if the response is treated as a
+            # classification failure
+            if SiteSetting.sift_error_is_false_response
+              classification_answer = false
+            else
+              classification_answer = true
+            end
+            
             data = {
               'risk' => 0,
-              'response' => false,
+              'response' => classification_answer,
               'topics' => {}
             }.to_json
             response = Excon::Response.new(:body => data)
@@ -145,11 +155,11 @@ class Sift
           #   topics, and edits just to Title of topic also pass the post here
           # TODO: Should title be classified separately rather than pre-pending
           #   to the post text?
-          if to_classify.post_number == 1
+          if to_classify.is_first_post?
             request_text = "#{to_classify.topic.title} #{request_text}"
           end
 
-          #Rails.logger.error("sift_debug: #{to_classify.inspect}")
+          #Rails.logger.debug("sift_debug: to_classify = #{to_classify.inspect}")
 
           # Account for a '/' or not at start of endpoint
           if !target.start_with? '/'
@@ -158,17 +168,17 @@ class Sift
 
           request_url = "#{@api_url}#{target}"
           request_body= {
-            'subcategory' => "#{to_classify.topic.id}",
+            'category' => "#{to_classify.topic&.category&.id}",
+            'subcategory' => "#{to_classify.topic&.id}",
             'user_id' => "#{to_classify.user.id}",
             'user_display_name' => "#{to_classify.user.username}",
             'content_id' => "#{to_classify.id}",
             'text' =>  request_text
           }.to_json
 
-          # TODO: look at using persistent connections.
           # TODO: Need to handle errors (e.g. incorrect API key)
 
-          #Rails.logger.debug("sift_debug: #{request_body.inspect}")
+          #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
 
           response = begin
                        result = Excon.post(request_url,

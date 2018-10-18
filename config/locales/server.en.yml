@@ -9,6 +9,7 @@ en:
     sift_use_standard_queue: 'Use the Discourse Flag queue for moderation instead of Community Sift queue'
     sift_extra_flag_users: 'An extra flag will be added for each user in this comma separated list'
     sift_use_async_check: 'If true then classification is done using the Job queue, else classification is done at time of posting'
+    sift_error_is_false_response: 'If true then an error in the response from Coummunity Sift is treated as a false classification response'
     sift_general_deny_level: 'General posts over this level will be auto denied'
     sift_bullying_deny_level: 'Bullying and Name Calling posts over this level will be auto denied'
     sift_fighting_deny_level: 'Fighting posts over this level will be auto denied'
