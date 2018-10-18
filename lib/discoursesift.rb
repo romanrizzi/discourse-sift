@@ -88,23 +88,18 @@ module DiscourseSift
           post_action_type = PostActionType.types[:inappropriate]
           
           begin
+            PostAction.act(
+              Discourse.system_user,
+              post,
+              post_action_type,
 
-            # Only post flag as system user if a flag does not already exist
-            if not post.active_flags.where(
-                 user_id: Discourse.system_user.id,
-                 post_action_type_id: post_action_type
-               ).exists?
-
-              PostAction.act(
-                Discourse.system_user,
-                post,
-                post_action_type,
-
-                # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
-                #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
-                message: I18n.t('sift_flag_message') + result.topic_string,
-              )
-            end
+              # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
+              #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
+              message: I18n.t('sift_flag_message') + result.topic_string,
+            )
+          rescue PostAction::AlreadyActed => e
+          # Post already flagged for this user
+            nil
           rescue Exception => e
             Rails.logger.error("sift_debug: Exception when trying flag as system user: #{e.inspect}")
           end
@@ -118,22 +113,18 @@ module DiscourseSift
                 # send a flag as this user
                 flag_user = User.find_by_username(name)
                 if !flag_user.nil?
-                  # Only post a flag as this user if one does not already exist
-                  if not post.active_flags.where(
-                           user_id: flag_user.id,
-                           post_action_type_id: post_action_type
-                         ).exists?
-
-                    PostAction.act(
-                      flag_user,
-                      post,
-                      post_action_type,
-                      message: I18n.t('sift_flag_message') + result.topic_string,
-                    )
-                  end
+                  PostAction.act(
+                    flag_user,
+                    post,
+                    post_action_type,
+                    message: I18n.t('sift_flag_message') + result.topic_string,
+                  )
                 else
                   Rails.logger.error("sift_debug: Could flag post with flag user:#{name}  Could not find user")
                 end
+              rescue PostAction::AlreadyActed => e
+                # Post already flagged for this user
+                nil
               rescue Exception => e
                 Rails.logger.error("sift_debug: Exception when trying flag extra user: #{e.inspect}")
               end
