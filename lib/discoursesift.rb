@@ -120,7 +120,7 @@ module DiscourseSift
                     message: I18n.t('sift_flag_message') + result.topic_string,
                   )
                 else
-                  Rails.logger.error("sift_debug: Could flag post with flag user:#{name}  Could not find user")
+                  Rails.logger.error("sift_debug: Could not flag post with flag user:#{name}  Could not find user")
                 end
               rescue PostAction::AlreadyActed => e
                 # Post already flagged for this user
@@ -186,7 +186,8 @@ module DiscourseSift
 
   def self.move_to_state(post, state, opts = nil)
     opts ||= {}
-    return if post.blank? || SiteSetting.sift_api_key.blank?
+
+    return if post.blank? || SiteSetting.sift_use_standard_queue || SiteSetting.sift_api_key.blank?
 
     post.custom_fields['SIFT_STATE'] = state
 
