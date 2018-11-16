@@ -4,6 +4,7 @@ en:
     sift_api_key: 'Community Sift API key to used to authorize plugin integration'
     sift_api_url: 'Url to Community Sift API'
     sift_end_point: 'Path to classification end point'
+    sift_language_code: 'If not empty then this language code is sent to Sift as the text language'
     sift_notify_user: 'Enable User Notification When Post Is Filtered'
     sift_post_stay_visible: 'Posts stay visible until moderated'
     sift_use_standard_queue: 'Use the Discourse Flag queue for moderation instead of Community Sift queue'
