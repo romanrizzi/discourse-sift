@@ -174,8 +174,18 @@ class Sift
             'user_display_name' => "#{to_classify.user.username}",
             'content_id' => "#{to_classify.id}",
             'text' =>  request_text
-          }.to_json
+          }
 
+          # If the site is configured with a fixed language code
+          # then include that in request
+          if !SiteSetting.sift_language_code.blank?
+            request_body['language'] = SiteSetting.sift_language_code
+
+          end
+
+          request_body = request_body.to_json
+          Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
+          
           # TODO: Need to handle errors (e.g. incorrect API key)
 
           #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
