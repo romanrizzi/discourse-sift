@@ -36,7 +36,11 @@
                 {{#link-to 'adminUser' post.user_id post.username}}{{avatar post imageSize="small"}} {{post.username}}{{/link-to}}
                 <a href={{post.url}} target="_blank" class="post-link">#{{post.id}}</a>
               </div>
-              {{{post.excerpt}}}
+
+	      <div>
+	      {{{post.sift_excerpt}}}
+	      </div>
+	      
               <div class="sift-classification">
                 {{#if post.sift_response }}
 		  {{#each-in post.sift_response.topics as |topicKey topicValue|}}
@@ -45,6 +49,19 @@
 		    <span class="sift-risk sift-risk-{{topicValue}}">{{topicValue}}</span>
 		  </span>  
 		  {{/each-in}}
+		  
+                  <div>
+		  {{#if post.sift_response.tokenized_solution}}
+		      {{#each post.sift_response.tokenized_solution.slots as |slot|}}
+		        <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left 'sift-unit-join-left'}} {{if slot.join_right 'sift-unit-join-right'}}">
+		          {{slot.text}}
+		        </span>
+		      {{/each}}
+
+		  {{~else~}}
+		    <span>{{i18n 'sift.no_sift_tokenized'}}</span>
+		  {{/if}}
+                  </div>
 		{{~else~}}
 		  <span>No Sift Info available</span>
 		{{/if}}
