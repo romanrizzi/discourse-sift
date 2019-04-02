@@ -80,23 +80,22 @@ module DiscourseSift
           SiteSetting.sift_extra_flag_users.split(',').each do |name|
             stripped_name = name.strip
             next if stripped_name.blank?
+            next unless flag_user = User.find_by_username(stripped_name) 
             
-            if flag_user = User.find_by_username(stripped_name)
-              flag_post_as(post, flag_user, result.topic_string)
-            end
+            flag_post_as(post, flag_user, result.topic_string)
           end
-        else
+        elsif !SiteSetting.sift_post_stay_visible
           # Should post be hidden/deleted until moderation?
-          if !SiteSetting.sift_post_stay_visible
-            remove_post_and_notify(post, 'sift_human_moderation')
-          end
-
-          # Mark Post For Requires Moderation
-          DiscourseSift.move_to_state(post, 'requires_moderation')
-
-          # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
-          DiscourseEvent.trigger(:sift_post_failed_policy_guide)
+          remove_post_and_notify(post, 'sift_human_moderation')
         end
+
+        enqueue_sift_reviewable(post) if reviewable_api_enabled?
+
+        # Mark Post For Requires Moderation
+        DiscourseSift.move_to_state(post, 'requires_moderation')
+
+        # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
+        DiscourseEvent.trigger(:sift_post_failed_policy_guide)
       end
     end
   end
@@ -132,18 +131,21 @@ module DiscourseSift
   end
 
   # These methods are private. Do not call them directly
+  def self.reviewable_api_enabled?
+    defined?(ReviewableSiftPost)
+  end
 
   def self.flag_post_as(post, user, topic_string)
-    post_action_type = PostActionType.types[:inappropriate]
-    
     # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
     # message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
-    PostAction.act(
-      user,
-      post,
-      post_action_type,
-      message: I18n.t('sift_flag_message') + topic_string,
-    )
+    message = I18n.t('sift_flag_message') + topic_string
+    
+    if reviewable_api_enabled? 
+      PostActionCreator.create(user, post, :inappropriate, message: message)
+    else
+      post_action_type = PostActionType.types[:inappropriate]
+      PostAction.act(user, post, post_action_type, message: message)
+    end
   rescue PostAction::AlreadyActed
     nil # Post already flagged for this user
   rescue Exception => e
@@ -159,5 +161,18 @@ module DiscourseSift
     if SiteSetting.sift_notify_user
       SystemMessage.create(post.user, reason,topic_title: post.topic.title)
     end
+  end
+
+  def self.enqueue_sift_reviewable(post)
+    system = Discourse.system_user
+    reviewable = ReviewableSiftPost.needs_review!(
+      created_by: system, target: post, topic: post.topic,
+      reviewable_by_moderator: true, payload: { post_cooked: post.cooked }
+    )
+
+    reviewable.add_score(
+      system, PostActionType.types[:inappropriate],
+      created_at: reviewable.created_at
+    )
   end
 end

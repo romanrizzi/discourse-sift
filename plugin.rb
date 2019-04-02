@@ -7,6 +7,9 @@
 
 enabled_site_setting :sift_enabled
 
+# Classes are not loaded at this point so we check for the file
+reviewable_api_enabled = File.exist? File.expand_path('../../../app/models/reviewable.rb', __FILE__)
+
 # load dependencies
 load File.expand_path('../lib/discourse_sift.rb', __FILE__)
 load File.expand_path('../lib/sift.rb', __FILE__)
@@ -27,6 +30,10 @@ after_initialize do
   # Jobs
   require_dependency File.expand_path('../jobs/classify_post.rb', __FILE__)
   
+  if reviewable_api_enabled
+    require_dependency File.expand_path('../models/reviewable_sift_post.rb', __FILE__)
+  end
+
   # Store Sift Data
   on(:post_created) do |post, params|
     begin

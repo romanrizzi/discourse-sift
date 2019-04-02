@@ -83,7 +83,7 @@ RSpec.describe DiscourseSift do
         stub_response_with response: false, topics: { "#{hate_topic_id}" => 3 }
       end
 
-      context 'Using the standard queue mode' do
+      context 'Queued pending reviews as flagged posts' do
         before { SiteSetting.sift_use_standard_queue = true }
 
         it 'Creates a flag as a system user' do
@@ -101,6 +101,12 @@ RSpec.describe DiscourseSift do
           assert_post_action_was_created_by additional_flagger
         end
 
+        it 'xxxxx', if: defined?(Reviewable) do
+          described_class.classify_post post
+
+          expect(ReviewableFlaggedPost.exists?).to eq true
+        end
+
         def assert_post_action_was_created_by user
           action = PostAction.find_by(user: user)
 
@@ -109,7 +115,7 @@ RSpec.describe DiscourseSift do
         end
       end
 
-      context 'Using the custom sift queue' do
+      context 'Do not queue pending reviews as flagged posts' do
         before { SiteSetting.sift_use_standard_queue = false }
 
         it 'Changes state to requires_moderation' do
@@ -125,6 +131,29 @@ RSpec.describe DiscourseSift do
           described_class.classify_post post
   
           expect(event_triggered).to eq true
+        end
+
+        describe 'Queued pending reviews as ReviewableSiftPosts', if: defined?(Reviewable) do
+          it 'xxxxxxx' do
+            described_class.classify_post post
+
+            sift_reviewable = ReviewableSiftPost.last
+
+            expect(sift_reviewable.status).to eq Reviewable.statuses[:pending]
+            expect(sift_reviewable.post).to eq post
+            expect(sift_reviewable.reviewable_by_moderator).to eq true
+            expect(sift_reviewable.payload['post_cooked']).to eq post.cooked
+          end
+
+          it 'Creates a new score for the new reviewable' do
+            described_class.classify_post post
+      
+            reviewable_akismet_score = ReviewableScore.last
+      
+            expect(reviewable_akismet_score.user).to eq Discourse.system_user
+            expect(reviewable_akismet_score.reviewable_score_type).to eq PostActionType.types[:inappropriate]
+            expect(reviewable_akismet_score.take_action_bonus).to be_zero
+          end
         end
 
         context 'Hide posts while waiting for moderation' do
