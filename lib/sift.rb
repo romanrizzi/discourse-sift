@@ -36,36 +36,26 @@ class Sift
       end
 
       def over_any_max_risk
-        result = false
-        @topic_hash.each do |topic_id, risk|
+        @topic_hash.detect(-> { false }) do |topic_id, risk|
           topic_name = TopicMap[topic_id.to_i]
-          unless topic_name.nil?
-            site_setting_name = "sift_#{topic_name}_deny_level"
-            max_risk = SiteSetting.send(site_setting_name)
-            if !max_risk.nil? and risk.to_i > max_risk.to_i
-              #Rails.logger.error("sift_debug: risk greater than max")
-              return true
-            end
-          end
-        end
+          next if topic_name.nil?
 
-        result
+          site_setting_name = "sift_#{topic_name}_deny_level"
+          max_risk = SiteSetting.send(site_setting_name)
+          !max_risk.nil? && risk.to_i > max_risk.to_i
+        end
       end
 
       def topic_string
         # Return a string with the topics and risk level enumerated
         # Simple way to output classification
-        result = ""
-        @topic_hash.each do |topic_id, risk|
+        @topic_hash.reduce('') do |acc, (topic_id, risk)|
           topic_name = TopicMap[topic_id.to_i]
-          unless topic_name.nil?
-            result = result + " #{topic_name}: #{risk.to_i}"
-          end
+          next(acc) if topic_name.nil?
+
+          acc << " #{topic_name}: #{risk.to_i}"
         end
-
-        result
       end
-
     end
 
     class Client
@@ -134,8 +124,8 @@ class Sift
 
 
           result_risk = Sift::Risk.new(
-            risk:           (if sift_response['risk'].nil?; 0; else; sift_response['risk'].to_i; end;),
-            response:       !!sift_response['response'],
+            risk:           sift_response.fetch('risk', 0).to_i,
+            response:       sift_response.fetch('response', false),
             topic_hash: hash_topics
           )
 
@@ -190,20 +180,17 @@ class Sift
 
           #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
 
-          response = begin
-                       result = Excon.post(request_url,
-                                           body: request_body,
-                                           headers: {
-                                             'Content-Type' => 'application/json',
-                                           },
-                                           :user => 'discourse-plugin',
-                                           :password => @api_key
-                                          )
-                       result
-                     rescue
-                       nil
-                     end
-          response
+          begin
+            Excon.post(
+              request_url, 
+              body: request_body,
+              headers: { 'Content-Type' => 'application/json' },
+              user: 'discourse-plugin',
+              password: @api_key
+            )
+          rescue
+            nil
+          end
         end
     end
 end

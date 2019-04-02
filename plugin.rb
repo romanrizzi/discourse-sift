@@ -8,7 +8,7 @@
 enabled_site_setting :sift_enabled
 
 # load dependencies
-load File.expand_path('../lib/discoursesift.rb', __FILE__)
+load File.expand_path('../lib/discourse_sift.rb', __FILE__)
 load File.expand_path('../lib/sift.rb', __FILE__)
 load File.expand_path('../lib/discourse_sift/engine.rb', __FILE__)
 
