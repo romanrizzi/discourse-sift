@@ -39,7 +39,7 @@ class ReviewableSiftPost < Reviewable
     log_confirmation(performed_by, 'confirmed_passed')
     successful_transition :rejected, :disagreed
   end
-  
+
   def perform_ignore(performed_by, _args)
     log_confirmation(performed_by, 'dismissed')
     successful_transition :ignored, :ignored

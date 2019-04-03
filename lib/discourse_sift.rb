@@ -10,7 +10,6 @@ module DiscourseSift
 
     stripped = post.raw.strip
 
-
     # If the entire post is a URI we skip it. This might seem counter intuitive but
     # Discourse already has settings for max links and images for new users. If they
     # pass it means the administrator specifically allowed them.
@@ -74,14 +73,14 @@ module DiscourseSift
           #Rails.logger.debug("sift_debug: Flagging Post  post: #{post.inspect}")
           #Rails.logger.debug("sift_debug:   active flags: #{post.active_flags.inspect}")
 
-          flag_post_as(post, Discourse.system_user, result.topic_string)          
+          flag_post_as(post, Discourse.system_user, result.topic_string)
 
           # Should we add an extra flags
           SiteSetting.sift_extra_flag_users.split(',').each do |name|
             stripped_name = name.strip
             next if stripped_name.blank?
-            next unless flag_user = User.find_by_username(stripped_name) 
-            
+            next unless flag_user = User.find_by_username(stripped_name)
+
             flag_post_as(post, flag_user, result.topic_string)
           end
         elsif !SiteSetting.sift_post_stay_visible
@@ -139,8 +138,8 @@ module DiscourseSift
     # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
     # message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
     message = I18n.t('sift_flag_message') + topic_string
-    
-    if reviewable_api_enabled? 
+
+    if reviewable_api_enabled?
       PostActionCreator.create(user, post, :inappropriate, message: message)
     else
       post_action_type = PostActionType.types[:inappropriate]
@@ -159,7 +158,7 @@ module DiscourseSift
     # TODO: Maybe a different message if post sent to mod but still visible?
     # Notify User
     if SiteSetting.sift_notify_user
-      SystemMessage.create(post.user, reason,topic_title: post.topic.title)
+      SystemMessage.create(post.user, reason, topic_title: post.topic.title)
     end
   end
 

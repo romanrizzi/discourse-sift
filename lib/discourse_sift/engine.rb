@@ -3,10 +3,3 @@ module DiscourseSift
     isolate_namespace DiscourseSift
   end
 end
-
-
-
-
-
-
-

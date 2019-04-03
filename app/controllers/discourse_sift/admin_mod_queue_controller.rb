@@ -23,7 +23,7 @@ module DiscourseSift
         if !post.deleted_at
 
           #Rails.logger.error("sift_debug: Post not deleted.  Deleting now")
-          
+
           PostDestroyer.new(current_user, post).destroy
 
           #Notify User?
@@ -35,11 +35,10 @@ module DiscourseSift
           end
         end
 
-        
         DiscourseSift.move_to_state(post, 'confirmed_failed')
         log_confirmation(post, 'confirmed_failed')
       end
-      
+
       render body: nil
     end
 

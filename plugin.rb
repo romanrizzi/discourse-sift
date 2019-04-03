@@ -4,7 +4,6 @@
 # authors: Richard Kellar, George Thomson
 # url: https://github.com/sift/discourse-sift
 
-
 enabled_site_setting :sift_enabled
 
 # Classes are not loaded at this point so we check for the file
@@ -29,7 +28,7 @@ after_initialize do
 
   # Jobs
   require_dependency File.expand_path('../jobs/classify_post.rb', __FILE__)
-  
+
   if reviewable_api_enabled
     require_dependency File.expand_path('../models/reviewable_sift_post.rb', __FILE__)
   end
@@ -70,7 +69,7 @@ after_initialize do
       #  Not sure if this is a problem, but maybe there is a path forward that can classify
       #  a delta or something?
       #
-      
+
       #Rails.logger.error("sift_debug: Enter post_edited")
       #Rails.logger.error("sift_debug: custom_fields: #{post.custom_fields.inspect}")
       if DiscourseSift.should_classify_post?(post)
@@ -100,7 +99,7 @@ after_initialize do
 
   register_post_custom_field_type(DiscourseSift::RESPONSE_CUSTOM_FIELD, :json)
   whitelist_flag_post_custom_field(DiscourseSift::RESPONSE_CUSTOM_FIELD)
-  
+
   add_to_serializer(:post, :sift_response) do
     post_custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]
   end

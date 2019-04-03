@@ -78,7 +78,7 @@ RSpec.describe DiscourseSift do
         it 'Creates another flag as a different user' do
           additional_flagger = Fabricate(:user)
           SiteSetting.sift_extra_flag_users = additional_flagger.username
-          
+
           perform_action
 
           assert_post_action_was_created_by additional_flagger
@@ -90,7 +90,7 @@ RSpec.describe DiscourseSift do
           expect(ReviewableFlaggedPost.exists?).to eq true
         end
 
-        def assert_post_action_was_created_by user
+        def assert_post_action_was_created_by(user)
           action = PostAction.find_by(user: user)
 
           expect(action.post).to eq post
@@ -103,16 +103,16 @@ RSpec.describe DiscourseSift do
 
         it 'Changes state to requires_moderation' do
           described_class.expects(:move_to_state).with(post, 'requires_moderation')
-  
+
           perform_action
         end
-  
+
         it 'Triggers a sift_post_failed_policy_guide event' do
           event_triggered = false
-  
+
           DiscourseEvent.on(:sift_post_failed_policy_guide) { event_triggered = true }
           perform_action
-  
+
           expect(event_triggered).to eq true
         end
 
@@ -130,9 +130,9 @@ RSpec.describe DiscourseSift do
 
           it 'Creates a new score for the new reviewable' do
             perform_action
-      
+
             reviewable_akismet_score = ReviewableScore.last
-      
+
             expect(reviewable_akismet_score.user).to eq Discourse.system_user
             expect(reviewable_akismet_score.reviewable_score_type).to eq PostActionType.types[:inappropriate]
             expect(reviewable_akismet_score.take_action_bonus).to be_zero
