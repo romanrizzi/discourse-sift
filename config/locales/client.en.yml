@@ -26,3 +26,10 @@ en:
       change_settings: "Change Settings"
       no_sift_info: "No Sift info available"
       no_sift_tokenized: "No Sift tokenized breakdown available"
+
+    topic:
+      deleted: "[Topic Deleted]"
+    review:
+      types:
+        reviewable_sift_post:
+          title: "Sift Flagged Post"

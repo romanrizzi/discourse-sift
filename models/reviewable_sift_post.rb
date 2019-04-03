@@ -50,7 +50,7 @@ class ReviewableSiftPost < Reviewable
   def build_action(actions, id, icon:, bundle: nil, key:)
     actions.add(id, bundle: bundle) do |action|
       action.icon = icon
-      action.label = "js.sift.#{id}"
+      action.label = "js.sift.#{key}"
     end
   end
 
