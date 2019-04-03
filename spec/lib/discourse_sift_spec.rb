@@ -1,4 +1,5 @@
 require 'rails_helper'
+require_relative '../shared_examples/notify_user_examples.rb'
 
 RSpec.describe DiscourseSift do
   before do
@@ -16,36 +17,18 @@ RSpec.describe DiscourseSift do
 
         described_class.expects(:move_to_state).with(post, 'pass_policy_guide')
 
-        described_class.classify_post post
+        perform_action
       end
     end
 
     shared_examples 'It hides flagged posts' do
       it 'Soft deletes the post' do
-        described_class.classify_post post
+        perform_action
 
         deleted_post = post.reload
 
         expect(post.deleted_at).to be_present
         expect(post.deleted_by).to eq Discourse.system_user
-      end
-    end
-
-    shared_examples 'It notifies users when the setting is enabled' do
-      it 'Notifies user if the setting is enabled' do
-        SiteSetting.sift_notify_user = true
-
-        SystemMessage.expects(:create).with(post.user, sift_reason, topic_title: post.topic.title).once
-
-        described_class.classify_post post
-      end
-
-      it 'Does nothing when the setting is disabled' do
-        SiteSetting.sift_notify_user = false
-
-        SystemMessage.expects(:create).never
-
-        described_class.classify_post post
       end
     end
 
@@ -59,7 +42,7 @@ RSpec.describe DiscourseSift do
       it 'Changes state to auto_moderated' do
         described_class.expects(:move_to_state).with(post, 'auto_moderated')
 
-        described_class.classify_post post
+        perform_action
       end
 
       let(:sift_reason) { 'sift_auto_filtered' }
@@ -70,7 +53,7 @@ RSpec.describe DiscourseSift do
         event_triggered = false
 
         DiscourseEvent.on(:sift_auto_moderated) { event_triggered = true }
-        described_class.classify_post post
+        perform_action
 
         expect(event_triggered).to eq true
       end
@@ -87,7 +70,7 @@ RSpec.describe DiscourseSift do
         before { SiteSetting.sift_use_standard_queue = true }
 
         it 'Creates a flag as a system user' do
-          described_class.classify_post post
+          perform_action
 
           assert_post_action_was_created_by Discourse.system_user
         end
@@ -96,13 +79,13 @@ RSpec.describe DiscourseSift do
           additional_flagger = Fabricate(:user)
           SiteSetting.sift_extra_flag_users = additional_flagger.username
           
-          described_class.classify_post post
+          perform_action
 
           assert_post_action_was_created_by additional_flagger
         end
 
-        it 'xxxxx', if: defined?(Reviewable) do
-          described_class.classify_post post
+        it 'Creates a ReviewableFladdedPost', if: defined?(Reviewable) do
+          perform_action
 
           expect(ReviewableFlaggedPost.exists?).to eq true
         end
@@ -121,21 +104,21 @@ RSpec.describe DiscourseSift do
         it 'Changes state to requires_moderation' do
           described_class.expects(:move_to_state).with(post, 'requires_moderation')
   
-          described_class.classify_post post
+          perform_action
         end
   
         it 'Triggers a sift_post_failed_policy_guide event' do
           event_triggered = false
   
           DiscourseEvent.on(:sift_post_failed_policy_guide) { event_triggered = true }
-          described_class.classify_post post
+          perform_action
   
           expect(event_triggered).to eq true
         end
 
         describe 'Queued pending reviews as ReviewableSiftPosts', if: defined?(Reviewable) do
-          it 'xxxxxxx' do
-            described_class.classify_post post
+          it 'Creates a new pending reviewable' do
+            perform_action
 
             sift_reviewable = ReviewableSiftPost.last
 
@@ -146,7 +129,7 @@ RSpec.describe DiscourseSift do
           end
 
           it 'Creates a new score for the new reviewable' do
-            described_class.classify_post post
+            perform_action
       
             reviewable_akismet_score = ReviewableScore.last
       
@@ -168,6 +151,10 @@ RSpec.describe DiscourseSift do
 
     def stub_response_with(risk_response)
       stub_request(:post, /test.siftapi.com/).to_return(status: 200, body: risk_response.to_json)
+    end
+
+    def perform_action
+      described_class.classify_post post
     end
   end
 end
