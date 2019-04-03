@@ -36,12 +36,12 @@ class ReviewableSiftPost < Reviewable
     # It's possible the post was recovered already
     PostDestroyer.new(performed_by, post).recover if post.deleted_at
 
-    log_confirmation(performed_by, 'confirmed_passed')
+    log_confirmation performed_by, 'confirmed_passed'
     successful_transition :rejected, :disagreed
   end
 
   def perform_ignore(performed_by, _args)
-    log_confirmation(performed_by, 'dismissed')
+    log_confirmation performed_by, 'dismissed'
     successful_transition :ignored, :ignored
   end
 
