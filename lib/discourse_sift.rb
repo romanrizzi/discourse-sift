@@ -38,6 +38,7 @@ module DiscourseSift
       #Rails.logger.error("sift_debug: classify_post Enter: #{post.inspect}")
 
       result = client.submit_for_classification(post)
+      reporter = Discourse.system_user
       passes_policy_guide = result.response
 
       if passes_policy_guide
@@ -45,9 +46,14 @@ module DiscourseSift
         DiscourseSift.move_to_state(post, 'pass_policy_guide')
       elsif result.over_any_max_risk
         # Mark Post As Auto Moderated Queue
-        DiscourseSift.move_to_state(post, 'auto_moderated')
 
-        remove_post_and_notify(post, 'sift_auto_filtered')
+        DiscourseSift.move_to_state(post, 'auto_moderated')
+        remove_post_and_notify(post, reporter, 'sift_auto_filtered')
+
+        if reviewable_api_enabled?
+          reviewable = enqueue_sift_reviewable(post, reporter)
+          reviewable.perform(reporter, :confirm_failed)
+        end
 
         # Trigger an event that community sift auto moderated a post. This allows moderators to notify chat rooms
         DiscourseEvent.trigger(:sift_auto_moderated)
@@ -73,22 +79,13 @@ module DiscourseSift
           #Rails.logger.debug("sift_debug: Flagging Post  post: #{post.inspect}")
           #Rails.logger.debug("sift_debug:   active flags: #{post.active_flags.inspect}")
 
-          flag_post_as(post, Discourse.system_user, result.topic_string)
-
-          # Should we add an extra flags
-          SiteSetting.sift_extra_flag_users.split(',').each do |name|
-            stripped_name = name.strip
-            next if stripped_name.blank?
-            next unless flag_user = User.find_by_username(stripped_name)
-
-            flag_post_as(post, flag_user, result.topic_string)
-          end
+          flag_post_as(post, reporter, result.topic_string)
         elsif !SiteSetting.sift_post_stay_visible
           # Should post be hidden/deleted until moderation?
-          remove_post_and_notify(post, 'sift_human_moderation')
+          remove_post_and_notify(post, reporter, 'sift_human_moderation')
         end
 
-        enqueue_sift_reviewable(post) if reviewable_api_enabled?
+        enqueue_sift_reviewable(post, reporter) if reviewable_api_enabled?
 
         # Mark Post For Requires Moderation
         DiscourseSift.move_to_state(post, 'requires_moderation')
@@ -151,9 +148,9 @@ module DiscourseSift
     Rails.logger.error("sift_debug: Exception when trying flag as system user: #{e.inspect}")
   end
 
-  def self.remove_post_and_notify(post, reason)
+  def self.remove_post_and_notify(post, reporter, reason)
     # Post Removed Due To Content
-    PostDestroyer.new(Discourse.system_user, post).destroy
+    PostDestroyer.new(reporter, post).destroy
 
     # TODO: Maybe a different message if post sent to mod but still visible?
     # Notify User
@@ -162,16 +159,17 @@ module DiscourseSift
     end
   end
 
-  def self.enqueue_sift_reviewable(post)
-    system = Discourse.system_user
-    reviewable = ReviewableSiftPost.needs_review!(
-      created_by: system, target: post, topic: post.topic,
-      reviewable_by_moderator: true, payload: { post_cooked: post.cooked }
-    )
+  def self.enqueue_sift_reviewable(post, reporter)
+    ReviewableSiftPost.needs_review!(
+      created_by: reporter, target: post, topic: post.topic,
+      reviewable_by_moderator: true,
+      payload: { post_cooked: post.cooked, sift: post.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]  }
+    ).tap do |reviewable|
 
-    reviewable.add_score(
-      system, PostActionType.types[:inappropriate],
-      created_at: reviewable.created_at
-    )
+      reviewable.add_score(
+        reporter, PostActionType.types[:inappropriate],
+        created_at: reviewable.created_at
+      )
+    end
   end
 end

@@ -36,7 +36,7 @@ class Sift
     end
 
     def over_any_max_risk
-      @topic_hash.detect(-> { false }) do |topic_id, risk|
+      @topic_hash.any? do |topic_id, risk|
         topic_name = TopicMap[topic_id.to_i]
         next if topic_name.nil?
 

@@ -36,7 +36,8 @@ RSpec.describe DiscourseSift do
       before do
         SiteSetting.sift_hate_deny_level = 2
         hate_topic_id = 10
-        stub_response_with response: false, topics: { "#{hate_topic_id}" => 3 }
+        @risk_response = { response: false, topics: { "#{hate_topic_id}" => 3 } }
+        stub_response_with @risk_response
       end
 
       it 'Changes state to auto_moderated' do
@@ -57,13 +58,22 @@ RSpec.describe DiscourseSift do
 
         expect(event_triggered).to eq true
       end
+
+      it 'Creates a new pending reviewable', if: defined?(Reviewable) do
+        expected_transitions = 2
+
+        perform_action
+
+        assert_reviewable_was_created(:approved, expected_transitions)
+      end
     end
 
     describe 'When the post is classified as low risk' do
       before do
         SiteSetting.sift_hate_deny_level = 100000
         hate_topic_id = 10
-        stub_response_with response: false, topics: { "#{hate_topic_id}" => 3 }
+        @risk_response = { response: false, topics: { "#{hate_topic_id}" => 3 } }
+        stub_response_with @risk_response
       end
 
       context 'Queued pending reviews as flagged posts' do
@@ -75,16 +85,7 @@ RSpec.describe DiscourseSift do
           assert_post_action_was_created_by Discourse.system_user
         end
 
-        it 'Creates another flag as a different user' do
-          additional_flagger = Fabricate(:user)
-          SiteSetting.sift_extra_flag_users = additional_flagger.username
-
-          perform_action
-
-          assert_post_action_was_created_by additional_flagger
-        end
-
-        it 'Creates a ReviewableFladdedPost', if: defined?(Reviewable) do
+        it 'Creates a ReviewableFlaggedPost', if: defined?(Reviewable) do
           perform_action
 
           expect(ReviewableFlaggedPost.exists?).to eq true
@@ -118,14 +119,11 @@ RSpec.describe DiscourseSift do
 
         describe 'Queued pending reviews as ReviewableSiftPosts', if: defined?(Reviewable) do
           it 'Creates a new pending reviewable' do
+            expected_transitions = 1
+
             perform_action
 
-            sift_reviewable = ReviewableSiftPost.last
-
-            expect(sift_reviewable.status).to eq Reviewable.statuses[:pending]
-            expect(sift_reviewable.post).to eq post
-            expect(sift_reviewable.reviewable_by_moderator).to eq true
-            expect(sift_reviewable.payload['post_cooked']).to eq post.cooked
+            assert_reviewable_was_created(:pending, expected_transitions)
           end
 
           it 'Creates a new score for the new reviewable' do
@@ -147,6 +145,17 @@ RSpec.describe DiscourseSift do
           it_behaves_like 'It notifies users when the setting is enabled'
         end
       end
+    end
+
+    def assert_reviewable_was_created(status, actions_count)
+      sift_reviewable = ReviewableSiftPost.includes(:reviewable_histories).last
+
+      expect(sift_reviewable.status).to eq Reviewable.statuses[status]
+      expect(sift_reviewable.post).to eq post
+      expect(sift_reviewable.reviewable_by_moderator).to eq true
+      expect(sift_reviewable.payload['post_cooked']).to eq post.cooked
+      expect(sift_reviewable.payload['sift']).to eq @risk_response.as_json
+      expect(sift_reviewable.reviewable_histories.size).to eq actions_count
     end
 
     def stub_response_with(risk_response)

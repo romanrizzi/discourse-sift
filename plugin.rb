@@ -14,10 +14,10 @@ load File.expand_path('../lib/discourse_sift.rb', __FILE__)
 load File.expand_path('../lib/sift.rb', __FILE__)
 load File.expand_path('../lib/discourse_sift/engine.rb', __FILE__)
 
+register_asset "stylesheets/sift_classification.scss"
+
 if !reviewable_api_enabled
   register_asset "stylesheets/mod_queue_styles.scss"
-  register_asset "stylesheets/sift_classification.scss"
-
   add_admin_route 'sift.title', 'sift'
 
   # And mount the engine

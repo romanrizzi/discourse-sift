@@ -28,9 +28,6 @@ plugins:
   sift_use_async_check:
     default: false
     shadowed_by_global: true
-  sift_extra_flag_users:
-    default: ''
-    shadowed_by_global: true
   sift_error_is_false_response:
     default: false
     shadowed_by_global: true
