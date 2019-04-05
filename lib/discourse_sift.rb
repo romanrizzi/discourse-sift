@@ -44,6 +44,7 @@ module DiscourseSift
       if passes_policy_guide
         # Make post as passed policy guide
         DiscourseSift.move_to_state(post, 'pass_policy_guide')
+        store_sift_response(post, result) unless reviewable_api_enabled?
       elsif result.over_any_max_risk
         # Mark Post As Auto Moderated Queue
 
@@ -51,8 +52,10 @@ module DiscourseSift
         remove_post_and_notify(post, reporter, 'sift_auto_filtered')
 
         if reviewable_api_enabled?
-          reviewable = enqueue_sift_reviewable(post, reporter)
+          reviewable = enqueue_sift_reviewable(post, result, reporter)
           reviewable.perform(reporter, :confirm_failed)
+        else
+          store_sift_response(post, result)
         end
 
         # Trigger an event that community sift auto moderated a post. This allows moderators to notify chat rooms
@@ -85,7 +88,11 @@ module DiscourseSift
           remove_post_and_notify(post, reporter, 'sift_human_moderation')
         end
 
-        enqueue_sift_reviewable(post, reporter) if reviewable_api_enabled?
+        if reviewable_api_enabled?
+          enqueue_sift_reviewable(post, result, reporter) 
+        else
+          store_sift_response(post, result)
+        end
 
         # Mark Post For Requires Moderation
         DiscourseSift.move_to_state(post, 'requires_moderation')
@@ -159,11 +166,11 @@ module DiscourseSift
     end
   end
 
-  def self.enqueue_sift_reviewable(post, reporter)
+  def self.enqueue_sift_reviewable(post, result, reporter)
     ReviewableSiftPost.needs_review!(
       created_by: reporter, target: post, topic: post.topic,
       reviewable_by_moderator: true,
-      payload: { post_cooked: post.cooked, sift: post.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD]  }
+      payload: { post_cooked: post.cooked, sift: result.raw_response }
     ).tap do |reviewable|
 
       reviewable.add_score(
@@ -171,5 +178,10 @@ module DiscourseSift
         created_at: reviewable.created_at
       )
     end
+  end
+
+  def self.store_sift_response(post, result)
+    post.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD] = result.raw_response
+    post.save_custom_fields(true)
   end
 end

@@ -27,12 +27,13 @@ class Sift
   class Error < StandardError; end
 
   class Risk
-    attr_accessor :risk, :response
+    attr_reader :risk, :response, :raw_response
 
-    def initialize(risk:, response:, topic_hash:)
+    def initialize(risk:, response:, topic_hash:, raw_response:)
       @risk = risk,
       @response = response
       @topic_hash = topic_hash
+      @raw_response = raw_response
     end
 
     def over_any_max_risk
@@ -122,13 +123,12 @@ class Sift
       hash_topics = sift_response.fetch('topics', {})
       hash_topics.default = 0
 
-      result_risk = Sift::Risk.new(
+      Sift::Risk.new(
         risk: sift_response.fetch('risk', 0).to_i,
         response: sift_response.fetch('response', false),
-        topic_hash: hash_topics
+        topic_hash: hash_topics,
+        raw_response: sift_response
       )
-
-      result_risk
     end
 
     def post(target, to_classify)

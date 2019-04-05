@@ -10,10 +10,34 @@ RSpec.describe DiscourseSift do
 
   describe 'Classifying a post' do
     let(:post) { Fabricate(:post) }
+    let(:policy_failed_response) do
+      {
+        tokenized_solution: {
+          text: "What's up losers???? This is stupid :wink:",
+          slots: [
+            { text: "what's", join_right: true, solution: "what's up", risk: 1, position: 6 },
+            { text: 'up', join_left: true, solution: "what's up", risk: 1, position: 7 },
+            { text: 'losers', solution: 'losers', risk: 3, position: 8 },
+            { text: 'this', solution: 'this', risk: 1, position: 9 },
+            { text: 'is', solution: 'is', risk: 2, position: 10 },
+            { text: 'stupid', solution: 'stupid', risk: 3, position: 11 },
+            { text: 'wink', solution: 'wink', risk: 1, position: 12 }
+          ]
+        },
+        risk: 3,
+        topics: { '0' => 3, '1' => 3 },
+        hashed: "What's up losers???? This is stupid :wink:",
+        response: false,
+        escalations: [],
+        trust: 4,
+        events: nil
+      }
+    end
 
     describe 'When the post is not classified as a risk' do
       it 'Changes state to pass_policy_guide' do
-        stub_response_with response: true
+        policy_passed_response = policy_failed_response.merge(response: true)
+        stub_response_with(policy_passed_response)
 
         described_class.expects(:move_to_state).with(post, 'pass_policy_guide')
 
@@ -34,10 +58,10 @@ RSpec.describe DiscourseSift do
 
     describe 'When the post is classified as high risk' do
       before do
-        SiteSetting.sift_hate_deny_level = 2
-        hate_topic_id = 10
-        @risk_response = { response: false, topics: { "#{hate_topic_id}" => 3 } }
-        stub_response_with @risk_response
+        SiteSetting.sift_bullying_deny_level = 2
+        bullying_id = '1'
+        @risk_response = policy_failed_response.merge(topics: { bullying_id => 100 })
+        stub_response_with(@risk_response)
       end
 
       it 'Changes state to auto_moderated' do
@@ -70,10 +94,10 @@ RSpec.describe DiscourseSift do
 
     describe 'When the post is classified as low risk' do
       before do
-        SiteSetting.sift_hate_deny_level = 100000
-        hate_topic_id = 10
-        @risk_response = { response: false, topics: { "#{hate_topic_id}" => 3 } }
-        stub_response_with @risk_response
+        SiteSetting.sift_bullying_deny_level = 1000
+        bullying_id = '1'
+        @risk_response = policy_failed_response.merge(topics: { bullying_id => 2 })
+        stub_response_with(@risk_response)
       end
 
       context 'Queued pending reviews as flagged posts' do
