@@ -75,7 +75,7 @@ RSpec.describe 'ReviewableSiftPost', if: defined?(Reviewable) do
 
     describe '#perform_confirm_failed' do
       let(:action) { :confirm_failed }
-      let(:action_name) { 'confirmed_failed' }
+      let(:action_name) { 'sift_confirmed_failed' }
       let(:flag_stat_status) { :agreed }
 
       it_behaves_like 'It logs actions in the staff actions logger'
@@ -100,7 +100,7 @@ RSpec.describe 'ReviewableSiftPost', if: defined?(Reviewable) do
 
     describe '#perform_allow' do
       let(:action) { :allow }
-      let(:action_name) { 'confirmed_passed' }
+      let(:action_name) { 'sift_confirmed_passed' }
       let(:flag_stat_status) { :disagreed }
 
       it_behaves_like 'It logs actions in the staff actions logger'
@@ -133,7 +133,7 @@ RSpec.describe 'ReviewableSiftPost', if: defined?(Reviewable) do
 
     describe '#perform_dismiss' do
       let(:action) { :ignore }
-      let(:action_name) { 'dismissed' }
+      let(:action_name) { 'sift_ignored' }
       let(:flag_stat_status) { :ignored }
 
       it_behaves_like 'It logs actions in the staff actions logger'
