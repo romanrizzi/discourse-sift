@@ -1,0 +1,34 @@
+{{reviewable-topic-link reviewable=reviewable tagName=''}}
+<div class='post-contents-wrapper'>
+  {{reviewable-created-by user=reviewable.target_created_by tagName=''}}
+  <div class='post-contents'>
+    {{reviewable-created-by-name user=reviewable.target_created_by tagName=''}}
+    <div class='post-body'>
+      {{{ reviewable.payload.post_cooked }}}
+    </div>
+    <div class="sift-classification">
+      {{#if reviewable.payload.sift }}
+        {{#each-in reviewable.payload.sift.topics as |topicKey topicValue|}}
+          <span class="sift-classification-unit sift-risk-{{topicValue}}">
+            <span class="sift-topic sift-topic-{{topicKey}}"></span>
+            <span class="sift-risk sift-risk-{{topicValue}}">{{topicValue}}</span>
+          </span>  
+        {{/each-in}}
+        <div>
+          {{#if reviewable.payload.sift.tokenized_solution}}
+            {{#each reviewable.payload.sift.tokenized_solution.slots as |slot|}}
+              <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left 'sift-unit-join-left'}} {{if slot.join_right 'sift-unit-join-right'}}">
+                {{slot.text}}
+              </span>
+            {{/each}}
+          {{~else~}}
+            <span>{{i18n 'sift.no_sift_tokenized'}}</span>
+          {{/if}}
+        </div>
+      {{~else~}}
+        <span>{{i18n 'sift.no_sift_info'}}</span>
+      {{/if}}
+    </div>
+    {{yield}}
+  </div>
+</div>

@@ -10,7 +10,6 @@ module DiscourseSift
 
     stripped = post.raw.strip
 
-
     # If the entire post is a URI we skip it. This might seem counter intuitive but
     # Discourse already has settings for max links and images for new users. If they
     # pass it means the administrator specifically allowed them.
@@ -39,31 +38,29 @@ module DiscourseSift
       #Rails.logger.error("sift_debug: classify_post Enter: #{post.inspect}")
 
       result = client.submit_for_classification(post)
+      reporter = Discourse.system_user
+      passes_policy_guide = result.response
 
-      #Rails.logger.debug("sift_debug: classify_post after submit: #{result.inspect}")
-      
-      if !result.response && result.over_any_max_risk  #Fails policy auto denied
-
-        #Rails.logger.error("sift_debug: Autodeleting Post")
-
-        # Post Removed Due To Content
-        PostDestroyer.new(Discourse.system_user, post).destroy
-
+      if passes_policy_guide
+        # Make post as passed policy guide
+        DiscourseSift.move_to_state(post, 'pass_policy_guide')
+        store_sift_response(post, result) unless reviewable_api_enabled?
+      elsif result.over_any_max_risk
         # Mark Post As Auto Moderated Queue
-        DiscourseSift.move_to_state(post, 'auto_moderated')
 
-        # Notify User
-        if SiteSetting.sift_notify_user
-          SystemMessage.new(post.user).create(
-            'sift_auto_filtered',
-            topic_title: post.topic.title
-          )
+        DiscourseSift.move_to_state(post, 'auto_moderated')
+        remove_post_and_notify(post, reporter, 'sift_auto_filtered')
+
+        if reviewable_api_enabled?
+          reviewable = enqueue_sift_reviewable(post, result, reporter)
+          reviewable.perform(reporter, :confirm_failed)
+        else
+          store_sift_response(post, result)
         end
 
         # Trigger an event that community sift auto moderated a post. This allows moderators to notify chat rooms
         DiscourseEvent.trigger(:sift_auto_moderated)
-
-      elsif !result.response  #Fails policy guide and escalated to human moderation
+      else
         #
         # TODO: If a user is on the post's page and is following the topic then they see the post appear.  It stays
         #       in view until they refresh the topic even if it was sent to moderated and/or deleted.  Is there a
@@ -85,85 +82,23 @@ module DiscourseSift
           #Rails.logger.debug("sift_debug: Flagging Post  post: #{post.inspect}")
           #Rails.logger.debug("sift_debug:   active flags: #{post.active_flags.inspect}")
 
-          post_action_type = PostActionType.types[:inappropriate]
-          
-          begin
-            PostAction.act(
-              Discourse.system_user,
-              post,
-              post_action_type,
-
-              # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
-              #message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
-              message: I18n.t('sift_flag_message') + result.topic_string,
-            )
-          rescue PostAction::AlreadyActed => e
-          # Post already flagged for this user
-            nil
-          rescue Exception => e
-            Rails.logger.error("sift_debug: Exception when trying flag as system user: #{e.inspect}")
-          end
-          
-
-          # Should we add an extra flags
-          SiteSetting.sift_extra_flag_users.split(",").each { |name|
-            name = name.strip()
-            if !name.blank?
-              begin
-                # send a flag as this user
-                flag_user = User.find_by_username(name)
-                if !flag_user.nil?
-                  PostAction.act(
-                    flag_user,
-                    post,
-                    post_action_type,
-                    message: I18n.t('sift_flag_message') + result.topic_string,
-                  )
-                else
-                  Rails.logger.error("sift_debug: Could not flag post with flag user:#{name}  Could not find user")
-                end
-              rescue PostAction::AlreadyActed => e
-                # Post already flagged for this user
-                nil
-              rescue Exception => e
-                Rails.logger.error("sift_debug: Exception when trying flag extra user: #{e.inspect}")
-              end
-
-            end
-          }
-          
-
-        else
+          flag_post_as(post, reporter, result.topic_string)
+        elsif !SiteSetting.sift_post_stay_visible
           # Should post be hidden/deleted until moderation?
-          if !SiteSetting.sift_post_stay_visible
-            # Post Removed Due To Content
-            PostDestroyer.new(Discourse.system_user, post).destroy
-
-            # TODO: Maybe a different message if post sent to mod but still visible?
-            #Notify User
-            if SiteSetting.sift_notify_user
-              SystemMessage.new(post.user).create(
-                'sift_human_moderation',
-                topic_title: post.topic.title
-              )
-            end
-          end
-
-          # Mark Post For Requires Moderation
-          DiscourseSift.move_to_state(post, 'requires_moderation')
-
-          # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
-          DiscourseEvent.trigger(:sift_post_failed_policy_guide)
-
+          remove_post_and_notify(post, reporter, 'sift_human_moderation')
         end
 
-      else
+        if reviewable_api_enabled?
+          enqueue_sift_reviewable(post, result, reporter) 
+        else
+          store_sift_response(post, result)
+        end
 
-        #Rails.logger.error("sift_debug: Post passes.  post: #{post.inspect}")
-        
-        # Make post as passed policy guide
-        DiscourseSift.move_to_state(post, 'pass_policy_guide')
+        # Mark Post For Requires Moderation
+        DiscourseSift.move_to_state(post, 'requires_moderation')
 
+        # Trigger an event that community sift has an item for human moderators. This allows moderators to notify chat rooms
+        DiscourseEvent.trigger(:sift_post_failed_policy_guide)
       end
     end
   end
@@ -198,4 +133,55 @@ module DiscourseSift
 
   end
 
+  # These methods are private. Do not call them directly
+  def self.reviewable_api_enabled?
+    defined?(ReviewableSiftPost)
+  end
+
+  def self.flag_post_as(post, user, topic_string)
+    # TODO: Can't get newline to render by default.  Might need to investigate overriding template or custom template?
+    # message: I18n.t('sift_flag_message') + "</br>\n" + result.topic_string
+    message = I18n.t('sift_flag_message') + topic_string
+
+    if reviewable_api_enabled?
+      PostActionCreator.create(user, post, :inappropriate, message: message)
+    else
+      post_action_type = PostActionType.types[:inappropriate]
+      PostAction.act(user, post, post_action_type, message: message)
+    end
+  rescue PostAction::AlreadyActed
+    nil # Post already flagged for this user
+  rescue Exception => e
+    Rails.logger.error("sift_debug: Exception when trying flag as system user: #{e.inspect}")
+  end
+
+  def self.remove_post_and_notify(post, reporter, reason)
+    # Post Removed Due To Content
+    PostDestroyer.new(reporter, post).destroy
+
+    # TODO: Maybe a different message if post sent to mod but still visible?
+    # Notify User
+    if SiteSetting.sift_notify_user
+      SystemMessage.create(post.user, reason, topic_title: post.topic.title)
+    end
+  end
+
+  def self.enqueue_sift_reviewable(post, result, reporter)
+    ReviewableSiftPost.needs_review!(
+      created_by: reporter, target: post, topic: post.topic,
+      reviewable_by_moderator: true,
+      payload: { post_cooked: post.cooked, sift: result.raw_response }
+    ).tap do |reviewable|
+
+      reviewable.add_score(
+        reporter, PostActionType.types[:inappropriate],
+        created_at: reviewable.created_at
+      )
+    end
+  end
+
+  def self.store_sift_response(post, result)
+    post.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD] = result.raw_response
+    post.save_custom_fields(true)
+  end
 end
