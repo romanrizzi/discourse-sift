@@ -89,7 +89,7 @@ module DiscourseSift
         end
 
         if reviewable_api_enabled?
-          enqueue_sift_reviewable(post, result, reporter) 
+          enqueue_sift_reviewable(post, result, reporter)
         else
           store_sift_response(post, result)
         end

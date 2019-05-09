@@ -36,7 +36,7 @@ module DiscourseSift
         end
 
         DiscourseSift.move_to_state(post, 'confirmed_failed')
-        log_confirmation(post, 'confirmed_failed')
+        log_confirmation(post, 'sift_confirmed_failed')
       end
 
       render body: nil
@@ -52,7 +52,7 @@ module DiscourseSift
         end
 
         DiscourseSift.move_to_state(post, 'confirmed_passed')
-        log_confirmation(post, 'confirmed_passed')
+        log_confirmation(post, 'sift_confirmed_passed')
       end
 
       render body: nil
@@ -63,7 +63,7 @@ module DiscourseSift
         reviewable.perform(current_user, :ignore)
       else
         DiscourseSift.move_to_state(post, 'dismissed')
-        log_confirmation(post, 'dismissed')
+        log_confirmation(post, 'sift_ignored')
       end
 
       render body: nil

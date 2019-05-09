@@ -4,9 +4,9 @@ en:
       logs:
         staff_actions:
           actions:
-            confirmed_passes_policy: "confirmed passes policy guide"
-            confirmed_failed_policy: "confirmed failed policy guide"
-            dismissed: 'dismissed'
+            sift_confirmed_passed: "Confirm Sift policy"
+            sift_confirmed_failed: "Reject Sift policy"
+            sift_ignored: 'Ignore Sift policy'
 
     sift:
       title: "Community Sift"
