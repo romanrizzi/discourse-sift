@@ -70,7 +70,8 @@ after_initialize do
     end
   end
 
-  add_to_serializer(:site, :reviewable_api_enabled) { reviewable_api_enabled }
+  # Add the flag even if the plugin is disabled.
+  add_to_serializer(:site, :reviewable_api_enabled, false) { reviewable_api_enabled }
 
   # Store Sift Data
   on(:post_created) do |post, _params|
