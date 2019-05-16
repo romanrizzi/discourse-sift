@@ -125,6 +125,9 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 }
 
 .sift-risk-4 {
+  @extend %sift-high-risk;
+
+  background: #1D8DC4;
 }
 
 .sift-risk-5 {
