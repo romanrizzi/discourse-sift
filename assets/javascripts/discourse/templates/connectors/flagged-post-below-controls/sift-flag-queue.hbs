@@ -17,6 +17,20 @@
         {{slot.original}}
       </span>
       {{/each}}
+          <div class="queue-actions">
+              {{d-button action="confirmFailedPost"
+                         actionParam=flaggedPost
+                         icon="check"
+                         class="btn-primary"
+                         label="sift.confirm_fails_policy"
+                         disabled=performingAction}}
+
+              {{d-button action="allowPost"
+                         actionParam=flaggedPost
+                         icon="thumbs-o-up"
+                         label="sift.confirm_passes_policy"
+                         disabled=performingAction}}
+          </div>
       </div>
     {{~else~}}
       <span>{{i18n 'sift.no_sift_tokenized'}}</span>
