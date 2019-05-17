@@ -14,7 +14,7 @@
       <div>
       {{#each flaggedPost.custom_fields.sift.tokenized_solution.slots as |slot|}}
       <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left (concat 'sift-unit-join-left-risk-' slot.risk)}} {{if slot.join_right (concat 'sift-unit-join-right-risk-' slot.risk)}}">
-        {{slot.text}}
+        {{slot.original}}
       </span>
       {{/each}}
       </div>
