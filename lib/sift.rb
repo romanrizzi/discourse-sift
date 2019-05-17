@@ -70,15 +70,16 @@ class Sift
 
     class Client
 
-        def initialize(base_url:, api_key:, api_url:, end_point:)
+        def initialize(base_url:, api_key:, api_url:, end_point:, action_end_point:)
             @base_url = base_url
             @api_key =  api_key
             @api_url = api_url
             @end_point = end_point
+            @action_end_point = action_end_point
         end
 
-        def self.with_client(base_url:, api_key:, api_url:, end_point:)
-          client = self.new(base_url: base_url, api_key: api_key, api_url: api_url,  end_point: end_point)
+        def self.with_client(base_url:, api_key:, api_url:, end_point:, action_end_point:)
+          client = self.new(base_url: base_url, api_key: api_key, api_url: api_url,  end_point: end_point, action_end_point: action_end_point)
           yield client if block_given?
         end
 
@@ -99,7 +100,7 @@ class Sift
             else
               classification_answer = true
             end
-            
+
             data = {
               'risk' => 0,
               'response' => classification_answer,

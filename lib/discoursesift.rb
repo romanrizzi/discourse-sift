@@ -28,6 +28,7 @@ module DiscourseSift
         api_key: SiteSetting.sift_api_key,
         api_url: SiteSetting.sift_api_url,
         end_point: SiteSetting.sift_end_point,
+        action_end_point: SiteSetting.sift_action_end_point,
         ) do |client|
 
       yield client

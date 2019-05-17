@@ -11,6 +11,9 @@ plugins:
   sift_end_point:
     default: '/v1/chat'
     shadowed_by_global: true
+  sift_action_end_point:
+    default: ''
+    shadowed_by_global: true
   sift_language_code:
     default: ''
     min: 2
