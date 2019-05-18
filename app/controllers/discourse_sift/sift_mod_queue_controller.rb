@@ -8,6 +8,17 @@ module DiscourseSift
     def confirm_failed
 
       Rails.logger.debug("sift_debug: entered confirm failed")
+
+      Sift::Client.with_client(
+          base_url: Discourse.base_url,
+          api_key: SiteSetting.sift_api_key,
+          api_url: SiteSetting.sift_api_url,
+          end_point: SiteSetting.sift_end_point,
+          action_end_point: SiteSetting.sift_action_end_point,
+          ) do |client|
+        post = Post.with_deleted.find(params[:post_id])
+        client.submit_for_post_action(post, current_user,'agree', nil)
+      end
       render body: nil
     end
 

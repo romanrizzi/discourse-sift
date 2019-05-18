@@ -122,6 +122,58 @@ class Sift
 
         end
 
+        def submit_for_post_action(post, moderator, reason, extra_reason_remarks)
+
+          Rails.logger.debug('sift_debug: submit_for_post_action Enter')
+
+          # Rails.logger.debug("sift_debug: submit_for_post_action: self='#{post.inspect}', reason='#{reason}'")
+          Rails.logger.debug("sift_debug: submit_for_post_action: extra_reason_remarks='#{extra_reason_remarks}'")
+          user_display_name = post.user.name.presence || post.user.username.presence
+          moderator_display_name = moderator.name.presence || moderator.username.presence
+          payload = {
+              'text' => "#{post.raw.strip[0..30999]}",
+              'reason' => reason,
+              'user_id' => "#{post.user&.id}",
+              'user_display_name' => user_display_name,
+              'moderator_display_name' => moderator_display_name,
+              'category' => "#{post.topic&.category&.id}",
+              'moderator_id' => "#{moderator.id}",
+              'content_id' => "#{post.id}",
+              'subcategory' => "#{post.topic&.id}"
+          }
+
+          Rails.logger.debug("sift_debug: payload = #{payload}")
+
+          unless extra_reason_remarks.blank?
+            payload['reason_other_text'] = extra_reason_remarks
+          end
+          #
+          #
+          request_url = "#{@api_url}#{@action_end_point}"
+
+          request_body = payload.to_json
+          # Rails.logger.debug("sift_debug: request URL = #{request_url}")
+          # Rails.logger.debug("sift_debug: request URL = *******************")
+
+
+          response = begin
+            result = Excon.post(request_url,
+                                body: request_body,
+                                headers: {
+                                    'Content-Type' => 'application/json',
+                                },
+                                :user => 'discourse-plugin',
+                                :password => @api_key
+            )
+            result
+          rescue
+            Rails.logger.error("sift_debug: Error in invoking the action endpoint")
+            nil
+          end
+          response
+
+        end
+
         private
 
         def validate_classification(sift_response)
