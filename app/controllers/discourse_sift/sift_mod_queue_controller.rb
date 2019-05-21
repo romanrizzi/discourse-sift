@@ -16,27 +16,15 @@ module DiscourseSift
       render body: nil
     end
 
-    def disagree_due_to_false_positive
-      Rails.logger.debug('sift_debug: entered disagree_due_to_false_positive')
+    def disagree
+      Sift::Client.with_client() do |client|
+        post = Post.with_deleted.find(params[:post_id])
+        reason = params[:reason]
+        Rails.logger.debug("sift_debug: entered the disagree method in controller: self='#{post.inspect}', reason='#{reason}")
+        client.submit_for_post_action(post, current_user, reason, nil)
+      end
       render body: nil
     end
-
-    def disagree_due_to_too_strict
-      Rails.logger.debug('sift_debug: entered disagree_due_to_too_strict')
-      render body: nil
-    end
-
-    def disagree_due_to_user_edited
-      Rails.logger.debug('sift_debug: entered disagree_due_to_user_edited')
-      render body: nil
-    end
-
-    def disagree_due_to_other
-      Rails.logger.debug('sift_debug: entered disagree_due_to_other')
-      render body: nil
-    end
-
-
 
     private
 

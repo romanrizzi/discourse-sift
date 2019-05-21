@@ -126,7 +126,7 @@ class Sift
 
           Rails.logger.debug('sift_debug: submit_for_post_action Enter')
 
-          # Rails.logger.debug("sift_debug: submit_for_post_action: self='#{post.inspect}', reason='#{reason}'")
+          Rails.logger.debug("sift_debug: submit_for_post_action: self='#{post.inspect}', reason='#{reason}'")
           Rails.logger.debug("sift_debug: submit_for_post_action: extra_reason_remarks='#{extra_reason_remarks}'")
           user_display_name = post.user.name.presence || post.user.username.presence
           moderator_display_name = moderator.name.presence || moderator.username.presence

@@ -20,7 +20,7 @@ export default DropdownSelectBox.extend({
     content.push({
       icon: "far-question-circle",
       id: "disagree-false-positive",
-      action: () => this.send("disagreeDueToFalsePositive"),
+      action: () => this.send("disagree", 'false_positive'),
       label: I18n.t("sift.actions.disagree_due_to_false_positive.title"),
       description: I18n.t("sift.actions.disagree_due_to_false_positive.description")
     });
@@ -28,15 +28,15 @@ export default DropdownSelectBox.extend({
     content.push({
       icon: "fab-steam-square",
       id: "disagree-too-strict",
-      action: () => this.send("disagreeDueToTooStrict"),
+      action: () => this.send("disagree", 'too_strict'),
       label: I18n.t("sift.actions.disagree_due_to_too_strict.title"),
       description: I18n.t("sift.actions.disagree_due_to_too_strict.description")
     });
 
     content.push({
-      icon: "pencil-square-o",
+      icon: "far-edit",
       id: "disagree-user-edited",
-      action: () => this.send("disagreeDueToUserEdited"),
+      action: () => this.send("disagree", 'user_edited'),
       label: I18n.t("sift.actions.disagree_due_to_user_edited.title"),
       description: I18n.t("sift.actions.disagree_due_to_user_edited.description")
     });
@@ -44,7 +44,7 @@ export default DropdownSelectBox.extend({
     content.push({
       icon: "fab-weixin",
       id: "disagree-other",
-      action: () => this.send("disagreeDueToOther"),
+      action: () => this.send("disagree", 'other'),
       label: I18n.t("sift.actions.disagree_due_to_other_reasons.title"),
       description: I18n.t("sift.actions.disagree_due_to_other_reasons.description")
     });
@@ -61,24 +61,9 @@ export default DropdownSelectBox.extend({
   },
 
   actions: {
-    disagreeDueToFalsePositive() {
+    disagree(reason){
       let flaggedPost = this.get("post");
-      SiftMod.disagreeDueToFalsePositive(flaggedPost);
-    },
-
-    disagreeDueToTooStrict() {
-      let flaggedPost = this.get("post");
-      SiftMod.allow(flaggedPost);
-    },
-
-    disagreeDueToUserEdited() {
-      let flaggedPost = this.get("post");
-      SiftMod.allow(flaggedPost);
-    },
-
-    disagreeDueToOther() {
-      let flaggedPost = this.get("post");
-      SiftMod.allow(flaggedPost);
+      SiftMod.disagree(flaggedPost, reason);
     },
 
 
