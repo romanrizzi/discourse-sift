@@ -85,7 +85,7 @@ class Sift
 
         def submit_for_classification(to_classify)
           #Rails.logger.error("sift_debug: submit_for_classification Enter")
-          response = post_classify(@end_point, to_classify)
+          response = post_classify(to_classify)
 
           #Rails.logger.error("sift_debug: #{response.inspect}")
           if response.nil? || response.status != 200
@@ -147,24 +147,9 @@ class Sift
           unless extra_reason_remarks.blank?
             payload['reason_other_text'] = extra_reason_remarks
           end
-          #
-          #
-          request_url = "#{@api_url}#{@action_end_point}"
-
-          request_body = payload.to_json
-          # Rails.logger.debug("sift_debug: request URL = #{request_url}")
-          # Rails.logger.debug("sift_debug: request URL = *******************")
-
 
           response = begin
-            result = Excon.post(request_url,
-                                body: request_body,
-                                headers: {
-                                    'Content-Type' => 'application/json',
-                                },
-                                :user => 'discourse-plugin',
-                                :password => @api_key
-            )
+            result = post(@action_end_point, payload)
             result
           rescue
             Rails.logger.error("sift_debug: Error in invoking the action endpoint")
@@ -195,7 +180,7 @@ class Sift
           result_risk
         end
 
-        def post_classify(target, to_classify)
+        def post_classify(to_classify)
           # Assume topic_id and player_id are no more than 1000 chars
           # Send a maximum of 31000 chars which is the default for
           # maximum post length site settings.
@@ -214,12 +199,6 @@ class Sift
 
           #Rails.logger.debug("sift_debug: to_classify = #{to_classify.inspect}")
 
-          # Account for a '/' or not at start of endpoint
-          if !target.start_with? '/'
-            target = "/#{target}"
-          end
-
-          request_url = "#{@api_url}#{target}"
           request_body= {
             'category' => "#{to_classify.topic&.category&.id}",
             'subcategory' => "#{to_classify.topic&.id}",
@@ -236,9 +215,32 @@ class Sift
 
           end
 
-          request_body = request_body.to_json
+          # TODO: Need to handle errors (e.g. incorrect API key)
+
+          #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
+
+          post(@end_point, request_body)
+        end
+
+        def post(endpoint, payload)
+          # Assume topic_id and player_id are no more than 1000 chars
+          # Send a maximum of 31000 chars which is the default for
+          # maximum post length site settings.
+          #
+
+          #Rails.logger.debug("sift_debug: post: payload = #{payload.inspect}")
+
+          # Account for a '/' or not at start of endpoint
+          if !endpoint.start_with? '/'
+            target = "/#{endpoint}"
+          end
+
+          request_url = "#{@api_url}#{endpoint}"
+
+          request_body = payload.to_json
+
           Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
-          
+
           # TODO: Need to handle errors (e.g. incorrect API key)
 
           #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
@@ -254,6 +256,7 @@ class Sift
                                           )
                        result
                      rescue
+                       Rails.logger.error("sift_debug: post: Error in invoking the endpoint")
                        nil
                      end
           response
