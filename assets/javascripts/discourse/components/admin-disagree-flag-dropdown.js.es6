@@ -44,7 +44,7 @@ export default DropdownSelectBox.extend({
     content.push({
       icon: "fab-weixin",
       id: "disagree-other",
-      action: () => this.send("disagree", 'other'),
+      action: () => this.send("disagree_other", 'other'),
       label: I18n.t("sift.actions.disagree_due_to_other_reasons.title"),
       description: I18n.t("sift.actions.disagree_due_to_other_reasons.description")
     });
@@ -65,6 +65,29 @@ export default DropdownSelectBox.extend({
       let flaggedPost = this.get("post");
       SiftMod.disagree(flaggedPost, reason);
     },
+
+    disagree_other(reason) {
+      let flaggedPost = this.get("post");
+
+      // var person = prompt("Please enter the reason:", "correct based on the context");
+      // if (person == null || person == "") {
+      //   txt = "User cancelled the prompt.";
+      // } else {
+      //   txt = "Hello " + person + "! How are you today?";
+      function promptForExtraReason() {
+        let extraReason = prompt("Please enter the reason:", "correct based on the context");
+        if (extraReason == null || extraReason == "") {
+          promptForExtraReason();
+        }
+        return extraReason;
+      }
+
+      // }
+      let otherReason = promptForExtraReason();
+      SiftMod.disagreeOther(flaggedPost, reason, otherReason);
+    },
+
+
 
 
   }

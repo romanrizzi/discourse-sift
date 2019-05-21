@@ -20,8 +20,19 @@ module DiscourseSift
       Sift::Client.with_client() do |client|
         post = Post.with_deleted.find(params[:post_id])
         reason = params[:reason]
-        Rails.logger.debug("sift_debug: entered the disagree method in controller: self='#{post.inspect}', reason='#{reason}")
+        Rails.logger.debug("sift_debug: entered the disagree method in controller: self='#{post.inspect}', reason='#{reason}'")
         client.submit_for_post_action(post, current_user, reason, nil)
+      end
+      render body: nil
+      end
+
+    def disagree_other
+      Sift::Client.with_client() do |client|
+        post = Post.with_deleted.find(params[:post_id])
+        reason = params[:reason]
+        other_reason = params[:other_reason]
+        Rails.logger.debug("sift_debug: entered the disagree method in controller: self='#{post.inspect}', reason='#{reason}', extra_reason = '#{other_reason}'")
+        client.submit_for_post_action(post, current_user, reason, other_reason)
       end
       render body: nil
     end

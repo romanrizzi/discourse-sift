@@ -19,4 +19,15 @@ export default {
             }
         });
     },
+
+    disagreeOther(post, reason, otherReason){
+        return ajax("/admin/plugins/sift/mod/disagree_other", {
+            type: "POST",
+            data: {
+                post_id: post.get("id"),
+                reason: reason,
+                other_reason: otherReason
+            }
+        });
+    },
 };

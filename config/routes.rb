@@ -3,6 +3,7 @@ DiscourseSift::Engine.routes.draw do
     collection do
       post   "confirm_failed" => "sift_mod_queue#confirm_failed"
       post   "disagree"        => "sift_mod_queue#disagree"
+      post   "disagree_other"        => "sift_mod_queue#disagree_other"
     end
   end
   resource :admin_mod_queue, path: "/", constraints: StaffConstraint.new, only: [:index] do
