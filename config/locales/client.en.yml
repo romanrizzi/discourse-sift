@@ -16,6 +16,22 @@ en:
       posts_to_review: "Posts to Review"
       dismiss: "Dismiss"
 
+      actions:
+        disagree:
+          title: "Confirm Passes Policy (Disagree)"
+        disagree_due_to_false_positive:
+          title: "False Positive"
+          description: "Disagree with the Sift decision; due to classification is a false positive"
+        disagree_due_to_too_strict:
+          title: "Too Strict"
+          description: "Disagree with the Sift decision; because the policy guide is too strict"
+        disagree_due_to_user_edited:
+          title: "User Edited"
+          description: "Disagree with the Sift decision; because a user edited the post"
+        disagree_due_to_other_reasons:
+          title: "Other"
+          description: "Disagree with the Sift decision; due to another reason"
+
       stats:
         classified: "Total Moderated"
         requires_moderation: "Requires Moderation"

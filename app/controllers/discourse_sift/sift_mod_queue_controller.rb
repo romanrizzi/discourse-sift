@@ -16,8 +16,23 @@ module DiscourseSift
       render body: nil
     end
 
-    def allow
-      Rails.logger.debug("sift_debug: entered allow")
+    def disagree_due_to_false_positive
+      Rails.logger.debug('sift_debug: entered disagree_due_to_false_positive')
+      render body: nil
+    end
+
+    def disagree_due_to_too_strict
+      Rails.logger.debug('sift_debug: entered disagree_due_to_too_strict')
+      render body: nil
+    end
+
+    def disagree_due_to_user_edited
+      Rails.logger.debug('sift_debug: entered disagree_due_to_user_edited')
+      render body: nil
+    end
+
+    def disagree_due_to_other
+      Rails.logger.debug('sift_debug: entered disagree_due_to_other')
       render body: nil
     end
 
