@@ -15,77 +15,161 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   }
 }
 
+:root {
+  --risk-0: #CCCCCC;
+  --risk-1: #AEAEAE;
+  --risk-2: #919191;
+  --risk-3: #747474;
+  --risk-4: #575757;
+  --risk-5: #3A3A3A;
+  --risk-6: #1D1D1D;
+  --risk-7: #000000;
+}
 
-.sift-classification-unit {
-  background: #e6f2ff;
 
-  padding: 3px 6px;
-  border: solid 1px grey;
-  border-radius: 9px;
-
+%sift-classification-base {
   font-size: 1em;
-  font-weight: bold;
-  color: white;
+  //color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   white-space: nowrap;
   vertical-align: baseline;
-  background-color: #999999;
+  //background-color: #999999;
   display: inline-block;
   margin-bottom: 7px;
+}
+
+//////////////////////////////////////////////////
+//
+// Topic Badges
+//
+//////////////////////////////////////////////////
+.sift-topic {
+
+  @extend %sift-classification-base;
+
+  padding: 3px 6px;
+
+  color: white;
+  background-color: #999999;
+  border: solid 1px grey;
+  border-radius: 9px;
+  font-weight: bold;
+
+}
+
+.sift-topic-risk-0 {
+  background: var(--risk-0) url(/plugins/discourse-sift/images/risk-0-tile.gif) repeat;
+}
+
+.sift-topic-risk-1 {
+  background: var(--risk-1) url(/plugins/discourse-sift/images/risk-1-tile.gif) repeat;
+}
+
+.sift-topic-risk-2 {
+  background: var(--risk-2) url(/plugins/discourse-sift/images/risk-2-tile.gif) repeat;
+}
+
+.sift-topic-risk-3 {
+  background: var(--risk-3) url(/plugins/discourse-sift/images/risk-3-tile.gif) repeat;
+}
+
+.sift-topic-risk-4 {
+  background: var(--risk-4) url(/plugins/discourse-sift/images/risk-4-tile.gif) repeat;
+}
+
+.sift-topic-risk-5 {
+  background: var(--risk-5) url(/plugins/discourse-sift/images/risk-5-tile.gif) repeat;
+}
+
+.sift-topic-risk-6 {
+  background: var(--risk-6) url(/plugins/discourse-sift/images/risk-6-tile.gif) repeat;
+}
+
+.sift-topic-risk-7 {
+  background: var(--risk-7) url(/plugins/discourse-sift/images/risk-7-tile.gif) repeat;
+}
+
+//////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////
+//
+// Word Badges
+//
+//////////////////////////////////////////////////
+.sift-classification-unit {
+  //background: #e6f2ff;
+
+  @extend %sift-classification-base;
+
+
+
+}
+
+%sift-high-risk {
+  padding: 4px 7px;
+  color: white;
+  border: solid 1px grey;
+  border-radius: 9px;
+  font-weight: bold;
 }
 
 .sift-classification-unit + .sift-classification-unit {
   margin-left: 2px;
 }
 
-.sift-topic {
-    
-}
-
 
 .sift-risk {
+
 }
 
 .sift-risk-0 {
-  background: #35B536;
 }
 
 .sift-risk-1 {
-  background: #468847;
 }
 
 .sift-risk-2 {
-  background: #999999;
 }
 
 .sift-risk-3 {
-  background: #f89406;
 }
 
 .sift-risk-4 {
-  background: #1D8DC4;
+  @extend %sift-high-risk;
+
+  background: var(--risk-5) url(/plugins/discourse-sift/images/risk-4-tile.gif) repeat;
 }
 
 .sift-risk-5 {
-  background: #F74F07;
+  @extend %sift-high-risk;
+
+  background: var(--risk-5) url(/plugins/discourse-sift/images/risk-5-tile.gif) repeat;
 }
 
 .sift-risk-6 {
-  background: #D42D2A;
+  @extend %sift-high-risk;
+
+  background: var(--risk-6) url(/plugins/discourse-sift/images/risk-6-tile.gif) repeat;
 }
 
 .sift-risk-7 {
-  background: #b94a48;
+  @extend %sift-high-risk;
+
+  background: var(--risk-7) url(/plugins/discourse-sift/images/risk-7-tile.gif) repeat;
 }
 
-.sift-unit-join-right {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: 4px solid #777;
-}
 
-.sift-unit-join-left {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 4px solid #777;	
+@for $i from 5 to 7 {
+  .sift-unit-join-right-risk-#{$i} {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 4px solid #777;
+  }
+
+  .sift-unit-join-left-risk-#{$i} {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 4px solid #777;
+  }
 }
