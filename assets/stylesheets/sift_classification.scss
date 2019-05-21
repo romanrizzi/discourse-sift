@@ -74,7 +74,7 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 }
 
 .sift-topic-risk-4 {
-  background: var(--risk-4) url(/plugins/discourse-sift/images/risk-4-tile.gif) repeat;
+  background: var(--risk-4) repeat;
 }
 
 .sift-topic-risk-5 {
@@ -138,7 +138,7 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 .sift-risk-4 {
   @extend %sift-high-risk;
 
-  background: var(--risk-5) url(/plugins/discourse-sift/images/risk-4-tile.gif) repeat;
+  background: var(--risk-4) repeat;
 }
 
 .sift-risk-5 {
