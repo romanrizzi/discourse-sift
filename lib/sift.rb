@@ -70,22 +70,22 @@ class Sift
 
     class Client
 
-        def initialize(base_url:, api_key:, api_url:, end_point:, action_end_point:)
-            @base_url = base_url
-            @api_key =  api_key
-            @api_url = api_url
-            @end_point = end_point
-            @action_end_point = action_end_point
+        def initialize()
+            @base_url = Discourse.base_url
+            @api_key =  SiteSetting.sift_api_key
+            @api_url = SiteSetting.sift_api_url
+            @end_point = SiteSetting.sift_end_point
+            @action_end_point = SiteSetting.sift_action_end_point
         end
 
-        def self.with_client(base_url:, api_key:, api_url:, end_point:, action_end_point:)
-          client = self.new(base_url: base_url, api_key: api_key, api_url: api_url,  end_point: end_point, action_end_point: action_end_point)
+        def self.with_client()
+          client = self.new
           yield client if block_given?
         end
 
         def submit_for_classification(to_classify)
           #Rails.logger.error("sift_debug: submit_for_classification Enter")
-          response = post(@end_point, to_classify)
+          response = post_classify(@end_point, to_classify)
 
           #Rails.logger.error("sift_debug: #{response.inspect}")
           if response.nil? || response.status != 200
@@ -195,7 +195,7 @@ class Sift
           result_risk
         end
 
-        def post(target, to_classify)
+        def post_classify(target, to_classify)
           # Assume topic_id and player_id are no more than 1000 chars
           # Send a maximum of 31000 chars which is the default for
           # maximum post length site settings.

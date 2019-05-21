@@ -23,13 +23,7 @@ module DiscourseSift
   end
 
   def self.with_client
-    Sift::Client.with_client(
-        base_url: Discourse.base_url,
-        api_key: SiteSetting.sift_api_key,
-        api_url: SiteSetting.sift_api_url,
-        end_point: SiteSetting.sift_end_point,
-        action_end_point: SiteSetting.sift_action_end_point,
-        ) do |client|
+    Sift::Client.with_client() do |client|
 
       yield client
     end
