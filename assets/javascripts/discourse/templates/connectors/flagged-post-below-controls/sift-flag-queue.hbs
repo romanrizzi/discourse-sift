@@ -12,11 +12,6 @@
 
     {{#if flaggedPost.custom_fields.sift.tokenized_solution}}
       <div>
-      {{#each flaggedPost.custom_fields.sift.tokenized_solution.slots as |slot|}}
-      <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left (concat 'sift-unit-join-left-risk-' slot.risk)}} {{if slot.join_right (concat 'sift-unit-join-right-risk-' slot.risk)}}">
-        {{if slot.original slot.original slot.text }}
-      </span>
-      {{/each}}
           <div class="queue-actions">
               {{d-button action="confirmFailedPost"
                          actionParam=flaggedPost
@@ -27,6 +22,11 @@
               {{admin-disagree-flag-dropdown
                       post=flaggedPost}}
           </div>
+      {{#each flaggedPost.custom_fields.sift.tokenized_solution.slots as |slot|}}
+      <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left (concat 'sift-unit-join-left-risk-' slot.risk)}} {{if slot.join_right (concat 'sift-unit-join-right-risk-' slot.risk)}}">
+        {{if slot.original slot.original slot.text }}
+      </span>
+      {{/each}}
       </div>
     {{~else~}}
       <span>{{i18n 'sift.no_sift_tokenized'}}</span>
