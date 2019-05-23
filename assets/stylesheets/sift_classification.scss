@@ -170,12 +170,12 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   .sift-unit-join-left-risk-#{$i} {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    border-left: 4px solid rgba(88, 85, 35, 0.22);
+    border-left: 4px solid #777;
   }
 }
 
 // TODO: Add style to pre text if we decide to include it
-.sift-pre-te xt {
+.sift-pre-text {
   background: #585523;
   color: white;
 }
