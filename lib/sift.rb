@@ -124,10 +124,10 @@ class Sift
 
         def submit_for_post_action(post, moderator, reason, extra_reason_remarks)
 
-          Rails.logger.debug('sift_debug: submit_for_post_action Enter')
+          # Rails.logger.debug('sift_debug: submit_for_post_action Enter')
 
-          Rails.logger.debug("sift_debug: submit_for_post_action: self='#{post.inspect}', reason='#{reason}'")
-          Rails.logger.debug("sift_debug: submit_for_post_action: extra_reason_remarks='#{extra_reason_remarks}'")
+          # Rails.logger.debug("sift_debug: submit_for_post_action: self='#{post.inspect}', reason='#{reason}'")
+          # Rails.logger.debug("sift_debug: submit_for_post_action: extra_reason_remarks='#{extra_reason_remarks}'")
           user_display_name = post.user.name.presence || post.user.username.presence
           moderator_display_name = moderator.name.presence || moderator.username.presence
           payload = {
@@ -239,7 +239,7 @@ class Sift
 
           request_body = payload.to_json
 
-          Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
+          Rails.logger.debug("sift_debug: post: request_url = #{request_url}, request_body = #{request_body.inspect}")
 
           # TODO: Need to handle errors (e.g. incorrect API key)
 

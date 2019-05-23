@@ -26,7 +26,8 @@ after_initialize do
 
   # Jobs
   require_dependency File.expand_path('../jobs/classify_post.rb', __FILE__)
-  
+  require_dependency File.expand_path('../jobs/report_post.rb', __FILE__)
+
   # Store Sift Data
   on(:post_created) do |post, params|
     begin
