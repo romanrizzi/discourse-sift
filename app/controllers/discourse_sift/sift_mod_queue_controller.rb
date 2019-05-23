@@ -9,31 +9,30 @@ module DiscourseSift
 
       Rails.logger.debug("sift_debug: entered confirm failed")
 
-      Sift::Client.with_client() do |client|
-        post = Post.with_deleted.find(params[:post_id])
-        client.submit_for_post_action(post, current_user,'agree', nil)
-      end
+      post = Post.with_deleted.find(params[:post_id])
+
+      DiscourseSift.report_post(post, current_user,'agree', nil)
+
       render body: nil
     end
 
     def disagree
-      Sift::Client.with_client() do |client|
-        post = Post.with_deleted.find(params[:post_id])
-        reason = params[:reason]
-        Rails.logger.debug("sift_debug: entered the disagree method in controller: self='#{post.inspect}', reason='#{reason}'")
-        client.submit_for_post_action(post, current_user, reason, nil)
-      end
+      Rails.logger.debug("sift_debug: disagree: enter'")
+      post = Post.with_deleted.find(params[:post_id])
+      reason = params[:reason]
+      Rails.logger.debug("sift_debug: disagree: self='#{post.inspect}', reason='#{reason}'")
+      DiscourseSift.report_post(post, current_user, reason, nil)
       render body: nil
       end
 
     def disagree_other
-      Sift::Client.with_client() do |client|
-        post = Post.with_deleted.find(params[:post_id])
-        reason = params[:reason]
-        other_reason = params[:other_reason]
-        Rails.logger.debug("sift_debug: entered the disagree method in controller: self='#{post.inspect}', reason='#{reason}', extra_reason = '#{other_reason}'")
-        client.submit_for_post_action(post, current_user, reason, other_reason)
-      end
+      Rails.logger.debug("sift_debug: disagree_other: enter'")
+      post = Post.with_deleted.find(params[:post_id])
+      reason = params[:reason]
+      other_reason = params[:other_reason]
+      Rails.logger.debug("sift_debug: disagree_other: self='#{post.inspect}', reason='#{reason}', extra_reason = '#{other_reason}'")
+      DiscourseSift.report_post(post, current_user, reason, other_reason)
+
       render body: nil
     end
 
