@@ -194,8 +194,7 @@ module DiscourseSift
   end
 
   def self.report_post(post, moderator, reason, extra_reason_remarks)
-    if SiteSetting.sift_use_async_check?
-      Rails.logger.debug("sift_debug: report_post: reporting using job")
+      #Rails.logger.debug("sift_debug: report_post: reporting using job")
       Jobs.enqueue(:report_post, post_id: post.id, moderator_id: moderator.id, reason: reason, extra_reason_remarks: extra_reason_remarks)
   end
 end

@@ -7,7 +7,7 @@ module DiscourseSift
 
     def confirm_failed
 
-      Rails.logger.debug("sift_debug: entered confirm failed")
+      #Rails.logger.debug("sift_debug: entered confirm failed")
 
       post = Post.with_deleted.find(params[:post_id])
 
@@ -17,20 +17,20 @@ module DiscourseSift
     end
 
     def disagree
-      Rails.logger.debug("sift_debug: disagree: enter'")
+      #Rails.logger.debug("sift_debug: disagree: enter")
       post = Post.with_deleted.find(params[:post_id])
       reason = params[:reason]
-      Rails.logger.debug("sift_debug: disagree: self='#{post.inspect}', reason='#{reason}'")
+      #Rails.logger.debug("sift_debug: disagree: self='#{post.inspect}', reason='#{reason}'")
       DiscourseSift.report_post(post, current_user, reason, nil)
       render body: nil
       end
 
     def disagree_other
-      Rails.logger.debug("sift_debug: disagree_other: enter'")
+      #Rails.logger.debug("sift_debug: disagree_other: enter'")
       post = Post.with_deleted.find(params[:post_id])
       reason = params[:reason]
       other_reason = params[:other_reason]
-      Rails.logger.debug("sift_debug: disagree_other: self='#{post.inspect}', reason='#{reason}', extra_reason = '#{other_reason}'")
+      #Rails.logger.debug("sift_debug: disagree_other: self='#{post.inspect}', reason='#{reason}', extra_reason = '#{other_reason}'")
       DiscourseSift.report_post(post, current_user, reason, other_reason)
 
       render body: nil
