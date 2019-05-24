@@ -5,10 +5,14 @@ function genericError() {
 }
 
 export default {
+
+    isDisabled: false,
+
     actions: {
         confirmFailedPost(flaggedPost) {
-            console.log('my action triggered');
             SiftMod.confirmFailed(flaggedPost);
+            this.set("isDisabled", true);
+
             // SiftMod.confirmFailed(flaggedPost).then(() => {
             //     this.get('model').removeObject(flaggedPost);
             //     this.incrementProperty('stats.confirmed_failed');
