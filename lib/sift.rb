@@ -186,7 +186,17 @@ class Sift
           # maximum post length site settings.
           #
 
+          #Rails.logger.debug("sift_debug: post_classify: to_classify = #{to_classify.inspect}")
+          #Rails.logger.debug("sift_debug: post_classify: to_classify.raw = #{to_classify.raw}")
+
           request_text = "#{to_classify.raw.strip[0..30999]}"
+
+
+          # Remove quoted text so it does not get classified.  NOTE: gsub() is used as there can be multiple
+          # quote blocks
+          request_text = request_text.gsub(/\[quote.+?\/quote\]/m, '')
+          #Rails.logger.debug("sift_debug: post_classify: request text after sub = #{request_text}")
+
           # If this is the first post, also classify the Topic title
           # TODO: Is this the best way to check for a new/editied topic?
           #   Testing shows that the post is always post_number 1 for new
