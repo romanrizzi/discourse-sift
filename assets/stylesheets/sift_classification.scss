@@ -173,3 +173,9 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
     border-left: 4px solid #777;
   }
 }
+
+// TODO: Add style to pre text if we decide to include it
+.sift-pre-text {
+  background: #585523;
+  color: white;
+}
