@@ -21,14 +21,14 @@ export default DropdownSelectBox.extend({
     }
     else{
       this.send("disagree", reason);
+      this.set("isDisabled", true);
     }
-    this.set("isDisabled", true);
   },
 
   computeContent() {
     const content = [];
     content.push({
-      icon: "far-question-circle",
+      icon: "cog",
       id: "disagree-false-positive",
       action: () => this.sendAndDisable('false_positive'),
       label: I18n.t("sift.actions.disagree_due_to_false_positive.title"),
@@ -36,7 +36,7 @@ export default DropdownSelectBox.extend({
     });
 
     content.push({
-      icon: "fab-steam-square",
+      icon: "far-image",
       id: "disagree-too-strict",
       action: () => this.sendAndDisable('too_strict'),
       label: I18n.t("sift.actions.disagree_due_to_too_strict.title"),
@@ -52,7 +52,7 @@ export default DropdownSelectBox.extend({
     });
 
     content.push({
-      icon: "fab-weixin",
+      icon: "far-dot-circle",
       id: "disagree-other",
       action: () => this.sendAndDisable('other'),
       label: I18n.t("sift.actions.disagree_due_to_other_reasons.title"),
@@ -78,15 +78,14 @@ export default DropdownSelectBox.extend({
 
     disagree_other(reason) {
       let flaggedPost = this.get("post");
-      let otherReason = promptForExtraReason();
-      SiftMod.disagreeOther(flaggedPost, reason, otherReason);
-
-      function promptForExtraReason() {
-        let extraReason = prompt("Please enter the reason:", "correct based on the context");
-        if (extraReason == null || extraReason === "") {
-          promptForExtraReason();
-        }
-        return extraReason;
+      let otherReason = prompt("Please enter the reason:", "correct based on the context");
+      if (otherReason == null || otherReason === ""){
+        alert("This item was not sent to any Sift Mod queue");
+        this.set("isDisabled", false);
+      }
+      else{
+        SiftMod.disagreeOther(flaggedPost, reason, otherReason);
+        this.set("isDisabled", true);
       }
     },
 
