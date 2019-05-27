@@ -12,6 +12,16 @@
 
     {{#if flaggedPost.custom_fields.sift.tokenized_solution}}
       <div>
+          <div class="queue-actions">
+              {{d-button action="confirmFailedPost"
+                         actionParam=flaggedPost
+                         icon="check"
+                         label="sift.confirm_fails_policy"
+                         disabled=isDisabled}}
+
+              {{admin-disagree-flag-dropdown
+                      post=flaggedPost}}
+          </div>
       {{#each flaggedPost.custom_fields.sift.tokenized_solution.slots as |slot|}}
           {{#if slot.is_pre}}
               {{! TODO: sometimes pre should be shown? (vertical filter, etc }}
