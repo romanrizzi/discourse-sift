@@ -9,7 +9,7 @@ registerHelper('ifCond', function(params) {
     let operator = params[1];
     let boundaryRiskLevel = parseInt(params[2]);
     if (operator === '>='){
-        if (topicValue > boundaryRiskLevel) {
+        if (topicValue >= boundaryRiskLevel) {
             topicValueIsGreaterThanTheBoundaryRiskLevel =  true;
         }
     }
