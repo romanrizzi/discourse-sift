@@ -15,6 +15,7 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   }
 }
 
+// Normal Sift risk colours
 :root {
   --risk-0: #CCCCCC;
   --risk-1: #AEAEAE;
@@ -26,6 +27,20 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   --risk-7: #000000;
 }
 
+// Colourblind palette colours
+:root {
+  --risk-4-bg: rgb(30, 30, 30);
+  --risk-4-fg: white;
+
+  --risk-5-bg: rgb(204, 121, 167);
+  --risk-5-fg: black;
+
+  --risk-6-bg: rgb(213, 94, 0);
+  --risk-6-fg: black;
+
+  --risk-7-bg: rgb(0, 114, 178);
+  --risk-7-fg: white;
+}
 
 %sift-classification-base {
   font-size: 1em;
@@ -73,21 +88,15 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   background: var(--risk-3) url(/plugins/discourse-sift/images/risk-3-tile.gif) repeat;
 }
 
-.sift-topic-risk-4 {
-  background: var(--risk-4) repeat;
+@for $i from 4 through 7 {
+  .sift-topic-risk-#{$i} {
+
+    color: var(--risk-#{$i}-fg);
+    background: var(--risk-#{$i}-bg);
+  }
 }
 
-.sift-topic-risk-5 {
-  background: var(--risk-5) url(/plugins/discourse-sift/images/risk-5-tile.gif) repeat;
-}
 
-.sift-topic-risk-6 {
-  background: var(--risk-6) url(/plugins/discourse-sift/images/risk-6-tile.gif) repeat;
-}
-
-.sift-topic-risk-7 {
-  background: var(--risk-7) url(/plugins/discourse-sift/images/risk-7-tile.gif) repeat;
-}
 
 //////////////////////////////////////////////////
 
@@ -135,32 +144,17 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 .sift-risk-3 {
 }
 
-.sift-risk-4 {
-  @extend %sift-high-risk;
+@for $i from 4 through 7 {
+  .sift-risk-#{$i} {
+    @extend %sift-high-risk;
 
-  background: var(--risk-4) repeat;
+    color: var(--risk-#{$i}-fg);
+    background: var(--risk-#{$i}-bg);
+  }
 }
 
-.sift-risk-5 {
-  @extend %sift-high-risk;
+@for $i from 5 through 7 {
 
-  background: var(--risk-5) url(/plugins/discourse-sift/images/risk-5-tile.gif) repeat;
-}
-
-.sift-risk-6 {
-  @extend %sift-high-risk;
-
-  background: var(--risk-6) url(/plugins/discourse-sift/images/risk-6-tile.gif) repeat;
-}
-
-.sift-risk-7 {
-  @extend %sift-high-risk;
-
-  background: var(--risk-7) url(/plugins/discourse-sift/images/risk-7-tile.gif) repeat;
-}
-
-
-@for $i from 5 to 7 {
   .sift-unit-join-right-risk-#{$i} {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
