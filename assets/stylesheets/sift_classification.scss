@@ -29,18 +29,20 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 
 // Colourblind palette colours
 :root {
-  --risk-4-bg: rgb(30, 30, 30);
-  --risk-4-fg: white;
+  --risk-4-bg: rgb(204, 121, 167);
+  --risk-4-fg: black;
 
-  --risk-5-bg: rgb(204, 121, 167);
+  --risk-5-bg: rgb(240, 228, 66);
   --risk-5-fg: black;
 
-  --risk-6-bg: rgb(213, 94, 0);
+  --risk-6-bg: rgb(230, 159, 0);
   --risk-6-fg: black;
 
-  --risk-7-bg: rgb(0, 114, 178);
-  --risk-7-fg: white;
+  --risk-7-bg: rgb(213, 94, 0);
+  --risk-7-fg: black;
+
 }
+
 
 %sift-classification-base {
   font-size: 1em;
