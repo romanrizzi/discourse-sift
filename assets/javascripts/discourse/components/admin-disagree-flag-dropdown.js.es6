@@ -59,8 +59,8 @@ export default DropdownSelectBox.extend({
       icon: "far-dot-circle",
       id: "disagree-other",
       action: () => this.sendAndDisable('other'),
-      label: I18n.t("sift.actions.disagree_due_to_other_reasons.title"),
-      description: I18n.t("sift.actions.disagree_due_to_other_reasons.description")
+      label: I18n.t("sift.actions.disagree_due_to_other.title"),
+      description: I18n.t("sift.actions.disagree_due_to_other.description")
     });
 
     return content;

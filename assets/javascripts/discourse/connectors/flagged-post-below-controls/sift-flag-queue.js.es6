@@ -21,13 +21,15 @@ export default {
         confirmFailedPost(flaggedPost) {
             SiftMod.confirmFailed(flaggedPost);
             this.set("isReportingEnabled", false);
-            this.set("reportedReason", "Agree");
+            this.set("reportedReason", I18n.t("sift.actions.agree.title"));
             //internalReportingDone("Agree");
         },
 
         markReportingDone(reason) {
             this.set("isReportingEnabled", false);
-            this.set("reportedReason", reason);
+            let reason_key = "sift.actions.disagree_due_to_" + reason + ".title";
+            let reason_string = I18n.t(reason_key);
+            this.set("reportedReason", reason_string);
             //internalReportingDone(reason)
 
         }

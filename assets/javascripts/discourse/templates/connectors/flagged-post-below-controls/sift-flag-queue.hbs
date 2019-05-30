@@ -27,7 +27,7 @@
           <div class="queue-actions">
               {{#if isReportingEnabled }}
                   <div>
-                      Report classification to Community Sift
+                      {{i18n 'sift.actions.section_title'}}
                   </div>
 
                   <div class="queue-actions-buttons">
@@ -42,7 +42,7 @@
                   </div>
               {{~else}}
                   <div>
-                      This has been reported to Community Sift with reason: {{reportedReason}}
+                      {{i18n 'sift.actions.reported_title'}}
                   </div>
 
               {{/if}}
