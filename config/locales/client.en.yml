@@ -17,6 +17,10 @@ en:
       dismiss: "Dismiss"
 
       actions:
+        section_title: "Report classification to Community Sift"
+        reported_title: "This has been reported to Community Sift with reason: "
+        agree:
+          title: "Confirm Fails Policy"
         disagree:
           title: "Confirm Passes Policy (Disagree)"
         disagree_due_to_false_positive:
@@ -28,7 +32,7 @@ en:
         disagree_due_to_user_edited:
           title: "User Edited"
           description: "Disagree with the Sift decision; because a user edited the post"
-        disagree_due_to_other_reasons:
+        disagree_due_to_other:
           title: "Other"
           description: "Disagree with the Sift decision; due to another reason"
 
