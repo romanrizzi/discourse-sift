@@ -23,6 +23,10 @@ export default DropdownSelectBox.extend({
       this.send("disagree", reason);
       this.set("isDisabled", true);
     }
+
+    if (this.onReportComplete) {
+      this.onReportComplete(reason)
+    }
   },
 
   computeContent() {

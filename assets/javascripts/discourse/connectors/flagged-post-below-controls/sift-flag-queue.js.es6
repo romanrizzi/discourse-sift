@@ -6,20 +6,31 @@ function genericError() {
 
 export default {
 
-    isDisabled: false,
+    internalReportingDone: (reason) => {
+        console.log("internalReportingDone: enter");
+        console.log("internalReportingDone: reason = " + reason);
+        this.set("isReportingEnabled", false);
+    },
+
+    setupComponent(args, component) {
+        component.set('isReportingEnabled', true);
+        component.set('reportedReason', "");
+    },
 
     actions: {
         confirmFailedPost(flaggedPost) {
             SiftMod.confirmFailed(flaggedPost);
-            this.set("isDisabled", true);
+            this.set("isReportingEnabled", false);
+            this.set("reportedReason", "Agree");
+            //internalReportingDone("Agree");
+        },
 
-            // SiftMod.confirmFailed(flaggedPost).then(() => {
-            //     this.get('model').removeObject(flaggedPost);
-            //     this.incrementProperty('stats.confirmed_failed');
-            //     this.decrementProperty('stats.requires_moderation');
-            // }).catch(genericError).finally(() => {
-            //     this.set('performingAction', false);
-            // });
+        markReportingDone(reason) {
+            this.set("isReportingEnabled", false);
+            this.set("reportedReason", reason);
+            //internalReportingDone(reason)
+
         }
-    }
+    },
+
 };

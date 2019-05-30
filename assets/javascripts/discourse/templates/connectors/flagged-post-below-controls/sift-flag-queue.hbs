@@ -25,14 +25,27 @@
           {{/if}}
       {{/each}}
           <div class="queue-actions">
-              {{d-button action="confirmFailedPost"
-                         actionParam=flaggedPost
-                         icon="check"
-                         label="sift.confirm_fails_policy"
-                         disabled=isDisabled}}
+              {{#if isReportingEnabled }}
+                  <div>
+                      Report classification to Community Sift
+                  </div>
 
-              {{admin-disagree-flag-dropdown
-                      post=flaggedPost}}
+                  <div class="queue-actions-buttons">
+                      {{d-button action="confirmFailedPost"
+                                 actionParam=flaggedPost
+                                 icon="check"
+                                 label="sift.confirm_fails_policy"
+                                 disabled=isDisabled}}
+
+                      {{admin-disagree-flag-dropdown
+                              post=flaggedPost onReportComplete=(action "markReportingDone")}}
+                  </div>
+              {{~else}}
+                  <div>
+                      This has been reported to Community Sift with reason: {{reportedReason}}
+                  </div>
+
+              {{/if}}
           </div>
       </div>
     {{~else~}}
