@@ -17,12 +17,12 @@ en:
       dismiss: "Dismiss"
 
       actions:
-        section_title: "Report classification to Community Sift"
-        reported_title: "This has been reported to Community Sift with reason: "
+        section_title: "Does this post violate the code of conduct?"
+        reported_title: "Does this post violate the code of conduct? Answered: "
         agree:
-          title: "Confirm Fails Policy"
+          title: "Yes"
         disagree:
-          title: "Confirm Passes Policy (Disagree)"
+          title: "No (select reason)"
         disagree_due_to_false_positive:
           title: "False Positive"
           description: "Disagree with the Sift decision; due to classification is a false positive"
