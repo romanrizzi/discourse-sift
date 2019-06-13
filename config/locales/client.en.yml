@@ -35,6 +35,9 @@ en:
         disagree_due_to_other:
           title: "No: Other"
           description: "Disagree with the Sift decision; due to another reason"
+          prompt: "Please enter the reason:"
+          default: "correct based on the context"
+          error: "This item was not sent to any Sift Mod queue"
 
       stats:
         classified: "Total Moderated"
