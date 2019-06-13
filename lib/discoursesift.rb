@@ -23,7 +23,7 @@ module DiscourseSift
   end
 
   def self.with_client
-    Sift::Client.with_client() do |client|
+    Sift::Client.with_client do |client|
 
       yield client
     end
