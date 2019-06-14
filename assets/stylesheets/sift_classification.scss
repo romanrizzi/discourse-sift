@@ -1,3 +1,4 @@
+@import "common/foundation/variables";
 
 $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Drugs', 'InGame', 'Alarm', 'Fraud', 'Racist', 'Religion', 'Junk', 'Website', 'Grooming', 'Public Threats', 'Real Name', 'Terrorist Recruitment', 'Subversive', 'Sentiment', 'Politics', 'Unused 21, 'Unused 22, 'Unused 23, 'Unused 24, 'Unused 25, 'Unused 26, 'Custom1', 'Custom2', 'Custom3', 'Custom4', 'Custom5';
 
@@ -45,7 +46,7 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 
 
 %sift-classification-base {
-  font-size: 1em;
+  font-size: $base-font-size;
   //color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   white-space: nowrap;
@@ -66,9 +67,9 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 
   padding: 3px 6px;
 
-  color: white;
-  background-color: #999999;
-  border: solid 1px grey;
+  color: $primary;
+  background-color: $secondary;
+  border: solid 1px $primary-medium;
   border-radius: 9px;
   font-weight: bold;
 
@@ -119,8 +120,8 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 
 %sift-high-risk {
   padding: 4px 7px;
-  color: white;
-  border: solid 1px grey;
+  color: $primary;
+  border: solid 1px $primary-medium;
   border-radius: 9px;
   font-weight: bold;
 }
@@ -160,13 +161,13 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   .sift-unit-join-right-risk-#{$i} {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    border-right: 4px solid #777;
+    border-right: 4px solid $primary-medium;
   }
 
   .sift-unit-join-left-risk-#{$i} {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    border-left: 4px solid #777;
+    border-left: 4px solid $primary-medium;
   }
 }
 
@@ -178,8 +179,8 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
 
 // Reporting Area
 .queue-actions {
-  background: #D6D6D6;
-  border-top: 2px solid black;
+  background: $header_background;
+  border-top: 2px solid $primary-medium;
   margin: 4px;
   padding: 4px;
 }
