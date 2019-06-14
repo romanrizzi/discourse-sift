@@ -6,12 +6,6 @@ function genericError() {
 
 export default {
 
-    internalReportingDone: (reason) => {
-        console.log("internalReportingDone: enter");
-        console.log("internalReportingDone: reason = " + reason);
-        this.set("isReportingEnabled", false);
-    },
-
     setupComponent(args, component) {
         component.set('isReportingEnabled', true);
         component.set('reportedReason', "");
