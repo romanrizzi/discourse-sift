@@ -13,7 +13,7 @@ module Jobs
       post = Post.where(id: args[:post_id], user_deleted: false).first
       return unless post.present?
 
-      Sift::Client.with_client() do |client|
+      Sift::Client.with_client do |client|
         moderator_id = args[:moderator_id]
         moderator = User.where(id: moderator_id).first
         reason = args[:reason]

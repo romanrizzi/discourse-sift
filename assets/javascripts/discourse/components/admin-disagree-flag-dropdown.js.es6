@@ -82,9 +82,11 @@ export default DropdownSelectBox.extend({
 
     disagree_other(reason) {
       let flaggedPost = this.get("post");
-      let otherReason = prompt("Please enter the reason:", "correct based on the context");
+
+      let otherReason = prompt(I18n.t("sift.actions.disagree_due_to_other.prompt"), I18n.t("sift.actions.disagree_due_to_other.default"));
+
       if (otherReason == null || otherReason === ""){
-        alert("This item was not sent to any Sift Mod queue");
+        alert(I18n.t("sift.actions.disagree_due_to_other.error"));
         this.set("isDisabled", false);
       }
       else{
