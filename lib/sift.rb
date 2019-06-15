@@ -78,7 +78,7 @@ class Sift
             @action_end_point = SiteSetting.sift_action_end_point
         end
 
-        def self.with_client()
+        def self.with_client
           client = self.new
           yield client if block_given?
         end
