@@ -1,6 +1,6 @@
 # name: discourse-sift
 # about: supports content classifying of posts to Community Sift
-# version: 0.1.12
+# version: 0.1.13
 # authors: Richard Kellar, George Thomson
 # url: https://github.com/sift/discourse-sift
 
@@ -26,7 +26,8 @@ after_initialize do
 
   # Jobs
   require_dependency File.expand_path('../jobs/classify_post.rb', __FILE__)
-  
+  require_dependency File.expand_path('../jobs/report_post.rb', __FILE__)
+
   # Store Sift Data
   on(:post_created) do |post, params|
     begin

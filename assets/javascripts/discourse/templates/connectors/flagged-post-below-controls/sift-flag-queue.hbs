@@ -1,20 +1,52 @@
 <div class="sift-classification">
   {{#if flaggedPost.custom_fields.sift }}
+
     <div>
     {{#each-in flaggedPost.custom_fields.sift.topics as |topicKey topicValue|}}
-      <span class="sift-classification-unit sift-risk-{{topicValue}}">
-        <span class="sift-topic sift-topic-{{topicKey}}"></span>
-        <span class="sift-risk sift-risk-{{topicValue}}">{{topicValue}}</span>
-      </span>  
+        <!-- following code line is a custom 'if' condition check via a helper to evaluate if the topicValue -->
+        {{#if (sift-high-risk topicValue)}}
+      <span class="sift-topic sift-topic-risk-{{topicValue}}">
+        <span class="sift-topic-{{topicKey}}"></span>
+        <span class="sift-risk">{{topicValue}}</span>
+      </span>
+        {{/if}}
     {{/each-in}}
     </div>
+
     {{#if flaggedPost.custom_fields.sift.tokenized_solution}}
       <div>
       {{#each flaggedPost.custom_fields.sift.tokenized_solution.slots as |slot|}}
-      <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left 'sift-unit-join-left'}} {{if slot.join_right 'sift-unit-join-right'}}">
-        {{slot.text}}
-      </span>
+          {{#if slot.is_pre}}
+              {{! TODO: sometimes pre should be shown? (vertical filter, etc }}
+          {{~else~}}
+              <span class="sift-classification-unit sift-risk-{{slot.risk}} {{if slot.join_left (concat 'sift-unit-join-left-risk-' slot.risk)}} {{if slot.join_right (concat 'sift-unit-join-right-risk-' slot.risk)}}">
+                  {{if slot.original slot.original slot.text }}
+              </span>
+          {{/if}}
       {{/each}}
+          <div class="queue-actions">
+              {{#if isReportingEnabled }}
+                  <div>
+                      {{i18n 'sift.actions.section_title'}}
+                  </div>
+
+                  <div class="queue-actions-buttons">
+                      {{d-button action="confirmFailedPost"
+                                 actionParam=flaggedPost
+                                 icon="check"
+                                 label="sift.actions.agree.title"
+                                 disabled=isDisabled}}
+
+                      {{admin-disagree-flag-dropdown
+                              post=flaggedPost onReportComplete=(action "markReportingDone")}}
+                  </div>
+              {{~else}}
+                  <div>
+                      {{i18n 'sift.actions.reported_title'}} {{reportedReason}}
+                  </div>
+
+              {{/if}}
+          </div>
       </div>
     {{~else~}}
       <span>{{i18n 'sift.no_sift_tokenized'}}</span>

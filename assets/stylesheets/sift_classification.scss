@@ -1,3 +1,4 @@
+@import "common/foundation/variables";
 
 $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Drugs', 'InGame', 'Alarm', 'Fraud', 'Racist', 'Religion', 'Junk', 'Website', 'Grooming', 'Public Threats', 'Real Name', 'Terrorist Recruitment', 'Subversive', 'Sentiment', 'Politics', 'Unused 21, 'Unused 22, 'Unused 23, 'Unused 24, 'Unused 25, 'Unused 26, 'Custom1', 'Custom2', 'Custom3', 'Custom4', 'Custom5';
 
@@ -15,77 +16,174 @@ $topic_list: 'General', 'Bullying', 'Fighting', 'PII', 'Sexting', 'Vulgar', 'Dru
   }
 }
 
+// Normal Sift risk colours
+:root {
+  --risk-0: #CCCCCC;
+  --risk-1: #AEAEAE;
+  --risk-2: #919191;
+  --risk-3: #747474;
+  --risk-4: #575757;
+  --risk-5: #3A3A3A;
+  --risk-6: #1D1D1D;
+  --risk-7: #000000;
+}
 
-.sift-classification-unit {
-  background: #e6f2ff;
+// Colourblind palette colours
+:root {
+  --risk-4-bg: rgb(204, 121, 167);
+  --risk-4-fg: black;
 
-  padding: 3px 6px;
-  border: solid 1px grey;
-  border-radius: 9px;
+  --risk-5-bg: rgb(240, 228, 66);
+  --risk-5-fg: black;
 
-  font-size: 1em;
-  font-weight: bold;
-  color: white;
+  --risk-6-bg: rgb(230, 159, 0);
+  --risk-6-fg: black;
+
+  --risk-7-bg: rgb(213, 94, 0);
+  --risk-7-fg: black;
+
+}
+
+
+%sift-classification-base {
+  font-size: $base-font-size;
+  //color: white;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   white-space: nowrap;
   vertical-align: baseline;
-  background-color: #999999;
+  //background-color: #999999;
   display: inline-block;
   margin-bottom: 7px;
+}
+
+//////////////////////////////////////////////////
+//
+// Topic Badges
+//
+//////////////////////////////////////////////////
+.sift-topic {
+
+  @extend %sift-classification-base;
+
+  padding: 3px 6px;
+
+  color: $primary;
+  background-color: $secondary;
+  border: solid 1px $primary-medium;
+  border-radius: 9px;
+  font-weight: bold;
+
+}
+
+.sift-topic-risk-0 {
+  background: var(--risk-0) url(/plugins/discourse-sift/images/risk-0-tile.gif) repeat;
+}
+
+.sift-topic-risk-1 {
+  background: var(--risk-1) url(/plugins/discourse-sift/images/risk-1-tile.gif) repeat;
+}
+
+.sift-topic-risk-2 {
+  background: var(--risk-2) url(/plugins/discourse-sift/images/risk-2-tile.gif) repeat;
+}
+
+.sift-topic-risk-3 {
+  background: var(--risk-3) url(/plugins/discourse-sift/images/risk-3-tile.gif) repeat;
+}
+
+@for $i from 4 through 7 {
+  .sift-topic-risk-#{$i} {
+
+    color: var(--risk-#{$i}-fg);
+    background: var(--risk-#{$i}-bg);
+  }
+}
+
+
+
+//////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////
+//
+// Word Badges
+//
+//////////////////////////////////////////////////
+.sift-classification-unit {
+  //background: #e6f2ff;
+
+  @extend %sift-classification-base;
+
+
+
+}
+
+%sift-high-risk {
+  padding: 4px 7px;
+  color: $primary;
+  border: solid 1px $primary-medium;
+  border-radius: 9px;
+  font-weight: bold;
 }
 
 .sift-classification-unit + .sift-classification-unit {
   margin-left: 2px;
 }
 
-.sift-topic {
-    
-}
-
 
 .sift-risk {
+
 }
 
 .sift-risk-0 {
-  background: #35B536;
 }
 
 .sift-risk-1 {
-  background: #468847;
 }
 
 .sift-risk-2 {
-  background: #999999;
 }
 
 .sift-risk-3 {
-  background: #f89406;
 }
 
-.sift-risk-4 {
-  background: #1D8DC4;
+@for $i from 4 through 7 {
+  .sift-risk-#{$i} {
+    @extend %sift-high-risk;
+
+    color: var(--risk-#{$i}-fg);
+    background: var(--risk-#{$i}-bg);
+  }
 }
 
-.sift-risk-5 {
-  background: #F74F07;
+@for $i from 5 through 7 {
+
+  .sift-unit-join-right-risk-#{$i} {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 4px solid $primary-medium;
+  }
+
+  .sift-unit-join-left-risk-#{$i} {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 4px solid $primary-medium;
+  }
 }
 
-.sift-risk-6 {
-  background: #D42D2A;
+// TODO: Add style to pre text if we decide to include it
+.sift-pre-text {
+  background: #585523;
+  color: white;
 }
 
-.sift-risk-7 {
-  background: #b94a48;
+// Reporting Area
+.queue-actions {
+  border-top: 2px solid $primary-medium;
+  margin: 4px;
+  padding: 4px;
 }
 
-.sift-unit-join-right {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: 4px solid #777;
-}
-
-.sift-unit-join-left {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-left: 4px solid #777;	
+.queue-actions-buttons {
+  margin: 4px;
 }

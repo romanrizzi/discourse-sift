@@ -70,21 +70,22 @@ class Sift
 
     class Client
 
-        def initialize(base_url:, api_key:, api_url:, end_point:)
-            @base_url = base_url
-            @api_key =  api_key
-            @api_url = api_url
-            @end_point = end_point
+        def initialize()
+            @base_url = Discourse.base_url
+            @api_key =  SiteSetting.sift_api_key
+            @api_url = SiteSetting.sift_api_url
+            @end_point = SiteSetting.sift_end_point
+            @action_end_point = SiteSetting.sift_action_end_point
         end
 
-        def self.with_client(base_url:, api_key:, api_url:, end_point:)
-          client = self.new(base_url: base_url, api_key: api_key, api_url: api_url,  end_point: end_point)
+        def self.with_client
+          client = self.new
           yield client if block_given?
         end
 
         def submit_for_classification(to_classify)
           #Rails.logger.error("sift_debug: submit_for_classification Enter")
-          response = post(@end_point, to_classify)
+          response = post_classify(to_classify)
 
           #Rails.logger.error("sift_debug: #{response.inspect}")
           if response.nil? || response.status != 200
@@ -99,7 +100,7 @@ class Sift
             else
               classification_answer = true
             end
-            
+
             data = {
               'risk' => 0,
               'response' => classification_answer,
@@ -118,6 +119,43 @@ class Sift
           #Rails.logger.error("sift_debug: Before validate...")
 
           validate_classification(sift_response)
+
+        end
+
+        def submit_for_post_action(post, moderator, reason, extra_reason_remarks)
+
+          # Rails.logger.debug('sift_debug: submit_for_post_action Enter')
+
+          # Rails.logger.debug("sift_debug: submit_for_post_action: self='#{post.inspect}', reason='#{reason}'")
+          # Rails.logger.debug("sift_debug: submit_for_post_action: extra_reason_remarks='#{extra_reason_remarks}'")
+          user_display_name = post.user.name.presence || post.user.username.presence
+          moderator_display_name = moderator.name.presence || moderator.username.presence
+          payload = {
+              'text' => "#{post.raw.strip[0..30999]}",
+              'reason' => reason,
+              'user_id' => "#{post.user&.id}",
+              'user_display_name' => user_display_name,
+              'moderator_display_name' => moderator_display_name,
+              'category' => "#{post.topic&.category&.id}",
+              'moderator_id' => "#{moderator.id}",
+              'content_id' => "#{post.id}",
+              'subcategory' => "#{post.topic&.id}"
+          }
+
+          Rails.logger.debug("sift_debug: payload = #{payload}")
+
+          unless extra_reason_remarks.blank?
+            payload['reason_other_text'] = extra_reason_remarks
+          end
+
+          response = begin
+            result = post(@action_end_point, payload)
+            result
+          rescue
+            Rails.logger.error("sift_debug: Error in invoking the action endpoint")
+            nil
+          end
+          response
 
         end
 
@@ -142,13 +180,23 @@ class Sift
           result_risk
         end
 
-        def post(target, to_classify)
+        def post_classify(to_classify)
           # Assume topic_id and player_id are no more than 1000 chars
           # Send a maximum of 31000 chars which is the default for
           # maximum post length site settings.
           #
 
+          #Rails.logger.debug("sift_debug: post_classify: to_classify = #{to_classify.inspect}")
+          #Rails.logger.debug("sift_debug: post_classify: to_classify.raw = #{to_classify.raw}")
+
           request_text = "#{to_classify.raw.strip[0..30999]}"
+
+
+          # Remove quoted text so it does not get classified.  NOTE: gsub() is used as there can be multiple
+          # quote blocks
+          request_text = request_text.gsub(/\[quote.+?\/quote\]/m, '')
+          #Rails.logger.debug("sift_debug: post_classify: request text after sub = #{request_text}")
+
           # If this is the first post, also classify the Topic title
           # TODO: Is this the best way to check for a new/editied topic?
           #   Testing shows that the post is always post_number 1 for new
@@ -161,12 +209,6 @@ class Sift
 
           #Rails.logger.debug("sift_debug: to_classify = #{to_classify.inspect}")
 
-          # Account for a '/' or not at start of endpoint
-          if !target.start_with? '/'
-            target = "/#{target}"
-          end
-
-          request_url = "#{@api_url}#{target}"
           request_body= {
             'category' => "#{to_classify.topic&.category&.id}",
             'subcategory' => "#{to_classify.topic&.id}",
@@ -183,9 +225,32 @@ class Sift
 
           end
 
-          request_body = request_body.to_json
-          Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
-          
+          # TODO: Need to handle errors (e.g. incorrect API key)
+
+          #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
+
+          post(@end_point, request_body)
+        end
+
+        def post(endpoint, payload)
+          # Assume topic_id and player_id are no more than 1000 chars
+          # Send a maximum of 31000 chars which is the default for
+          # maximum post length site settings.
+          #
+
+          #Rails.logger.debug("sift_debug: post: payload = #{payload.inspect}")
+
+          # Account for a '/' or not at start of endpoint
+          if !endpoint.start_with? '/'
+            target = "/#{endpoint}"
+          end
+
+          request_url = "#{@api_url}#{endpoint}"
+
+          request_body = payload.to_json
+
+          Rails.logger.debug("sift_debug: post: request_url = #{request_url}, request_body = #{request_body.inspect}")
+
           # TODO: Need to handle errors (e.g. incorrect API key)
 
           #Rails.logger.debug("sift_debug: request_body = #{request_body.inspect}")
@@ -201,6 +266,7 @@ class Sift
                                           )
                        result
                      rescue
+                       Rails.logger.error("sift_debug: post: Error in invoking the endpoint")
                        nil
                      end
           response
