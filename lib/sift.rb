@@ -91,7 +91,12 @@ class Sift
           if response.nil? || response.status != 200
             #if there is an error reaching Community Sift, escalate to human moderation
 
-            Rails.logger.error("sift_debug: Got an error from Sift: status: #{response.status} response: #{response.inspect}")
+            error_message = if response.nil?
+              "sift_debug: Got an error from Sift."
+            else
+              "sift_debug: Got an error from Sift: status: #{response.status} response: #{response.inspect}"
+            end
+            Rails.logger.error(error_message)
 
             # Setting determines if the response is treated as a
             # classification failure
