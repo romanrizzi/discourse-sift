@@ -27,15 +27,9 @@ end
 def trigger_post_classification(post)
   return unless DiscourseSift.should_classify_post?(post)
 
-  if SiteSetting.sift_use_async_check?
-    # Use Job queue
-    #Rails.logger.debug("sift_debug: Using Job method")
-    Jobs.enqueue(:classify_post, post_id: post.id)
-  else
-    # Classify Post directly
-    #Rails.logger.debug("sift_debug: classify directly")
-    DiscourseSift.classify_post(post)
-  end
+  # Use Job queue
+  #Rails.logger.debug("sift_debug: Using Job method")
+  Jobs.enqueue(:classify_post, post_id: post.id)
 end
 
 after_initialize do
