@@ -26,7 +26,7 @@ plugins:
     default: false
     shadowed_by_global: true
   sift_use_standard_queue:
-    default: false
+    default: true
     shadowed_by_global: true
   sift_error_is_false_response:
     default: false
