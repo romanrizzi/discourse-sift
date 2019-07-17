@@ -113,8 +113,6 @@ class Sift
 
     end
 
-    private
-
     def submit_for_post_action(post, moderator, reason, extra_reason_remarks)
 
       # Rails.logger.debug('sift_debug: submit_for_post_action Enter')
@@ -148,6 +146,8 @@ class Sift
         nil
       end
     end
+
+    private
 
     def validate_classification(sift_response)
       # TODO: Handle errors better?  Currently any issues with connection including incorrect API key leads to
