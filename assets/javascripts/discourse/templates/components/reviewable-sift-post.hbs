@@ -28,29 +28,6 @@
                   </span>
               {{/if}}
             {{/each}}
-          <div class="queue-actions">
-              {{#if isReportingEnabled }}
-                  <div>
-                      {{i18n 'sift.actions.section_title'}}
-                  </div>
-
-                  <div class="queue-actions-buttons">
-                      {{d-button action="confirmFailedPost"
-                                 actionParam=flaggedPost
-                                 icon="check"
-                                 label="sift.actions.agree.title"
-                                 disabled=isDisabled}}
-
-                      {{admin-disagree-flag-dropdown
-                              post=flaggedPost onReportComplete=(action "markReportingDone")}}
-                  </div>
-              {{~else}}
-                  <div>
-                      {{i18n 'sift.actions.reported_title'}} {{reportedReason}}
-                  </div>
-
-              {{/if}}
-          </div>
           {{~else~}}
             <span>{{i18n 'sift.no_sift_tokenized'}}</span>
           {{/if}}

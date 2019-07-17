@@ -16,14 +16,12 @@ load File.expand_path('../lib/discourse_sift/engine.rb', __FILE__)
 
 register_asset "stylesheets/sift_classification.scss"
 
-if !reviewable_api_enabled
-  register_asset "stylesheets/mod_queue_styles.scss"
-  add_admin_route 'sift.title', 'sift'
+register_asset "stylesheets/mod_queue_styles.scss"
+add_admin_route 'sift.title', 'sift'
 
-  # And mount the engine
-  Discourse::Application.routes.append do
-    mount ::DiscourseSift::Engine, at: '/admin/plugins/sift'
-  end
+# And mount the engine
+Discourse::Application.routes.append do
+  mount ::DiscourseSift::Engine, at: '/admin/plugins/sift'
 end
 
 def trigger_post_classification(post)
