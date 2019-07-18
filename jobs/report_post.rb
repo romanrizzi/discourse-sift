@@ -4,7 +4,7 @@
 module Jobs
   class ReportPost < Jobs::Base
 
-    # Send a post to Sift to report aggee or disagree with classification
+    # Send a post to Sift to report agree or disagree with classification
     def execute(args)
       #Rails.logger.debug("sift_debug: report_post job: enter")
       raise Discourse::InvalidParameters.new(:post_id) unless args[:post_id].present?

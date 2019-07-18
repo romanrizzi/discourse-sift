@@ -26,10 +26,7 @@ plugins:
     default: false
     shadowed_by_global: true
   sift_use_standard_queue:
-    default: false
-    shadowed_by_global: true
-  sift_use_async_check:
-    default: false
+    default: true
     shadowed_by_global: true
   sift_extra_flag_users:
     default: ''
