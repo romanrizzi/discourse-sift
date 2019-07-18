@@ -22,12 +22,7 @@ module DiscourseSift
   end
 
   def self.with_client
-    Sift::Client.with_client(
-        base_url: Discourse.base_url,
-        api_key: SiteSetting.sift_api_key,
-        api_url: SiteSetting.sift_api_url,
-        end_point: SiteSetting.sift_end_point,
-        ) do |client|
+    Sift::Client.with_client do |client|
 
       yield client
     end
@@ -83,6 +78,24 @@ module DiscourseSift
           #Rails.logger.debug("sift_debug:   active flags: #{post.active_flags.inspect}")
 
           flag_post_as(post, reporter, result.topic_string)
+
+          # Should we add an extra flags
+          SiteSetting.sift_extra_flag_users.split(",").each { |name|
+            name = name.strip()
+            if !name.blank?
+              begin
+                # send a flag as this user
+                flag_user = User.find_by_username(name)
+                if !flag_user.nil?
+                  flag_post_as(post, flag_user, result.topic_string)
+                else
+                  Rails.logger.error("sift_debug: Could not flag post with flag user:#{name}  Could not find user")
+                end
+              end
+
+            end
+          }
+
         elsif !SiteSetting.sift_post_stay_visible
           # Should post be hidden/deleted until moderation?
           remove_post_and_notify(post, reporter, 'sift_human_moderation')
@@ -183,5 +196,14 @@ module DiscourseSift
   def self.store_sift_response(post, result)
     post.custom_fields[DiscourseSift::RESPONSE_CUSTOM_FIELD] = result.raw_response
     post.save_custom_fields(true)
+  end
+
+  def self.report_post(post, moderator, reason, extra_reason_remarks)
+    Rails.logger.debug("sift_debug: report_post: reporting using job")
+
+    return if SiteSetting.sift_action_end_point.blank? || SiteSetting.sift_api_key.blank?
+
+    Rails.logger.debug("sift_debug: report_post: sending to job")
+    Jobs.enqueue(:report_post, post_id: post.id, moderator_id: moderator.id, reason: reason, extra_reason_remarks: extra_reason_remarks)
   end
 end
