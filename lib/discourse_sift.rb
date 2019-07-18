@@ -78,6 +78,24 @@ module DiscourseSift
           #Rails.logger.debug("sift_debug:   active flags: #{post.active_flags.inspect}")
 
           flag_post_as(post, reporter, result.topic_string)
+
+          # Should we add an extra flags
+          SiteSetting.sift_extra_flag_users.split(",").each { |name|
+            name = name.strip()
+            if !name.blank?
+              begin
+                # send a flag as this user
+                flag_user = User.find_by_username(name)
+                if !flag_user.nil?
+                  flag_post_as(post, flag_user, result.topic_string)
+                else
+                  Rails.logger.error("sift_debug: Could not flag post with flag user:#{name}  Could not find user")
+                end
+              end
+
+            end
+          }
+
         elsif !SiteSetting.sift_post_stay_visible
           # Should post be hidden/deleted until moderation?
           remove_post_and_notify(post, reporter, 'sift_human_moderation')
