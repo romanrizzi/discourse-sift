@@ -103,7 +103,6 @@ after_initialize do
   end
 
   register_post_custom_field_type(DiscourseSift::RESPONSE_CUSTOM_FIELD, :json)
-  whitelist_flag_post_custom_field(DiscourseSift::RESPONSE_CUSTOM_FIELD)
 
   if reviewable_api_enabled
     staff_actions = %i[sift_confirmed_failed sift_confirmed_passed sift_ignored]
